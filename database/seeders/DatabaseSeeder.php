@@ -2,24 +2,24 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
-     * Seed the application's database.
+     * Lancement de tous les seeders dans l'ordre correct
+     * L'ordre est très important à cause des clés étrangères :
+     * - Les services doivent exister avant les documents requis
+     * - Les services doivent exister avant les étapes
+     * - Les services doivent exister avant les infos visa
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            ServiceSeeder::class,        // 1. D'abord les services
+            DocumentRequisSeeder::class, // 2. Ensuite les documents requis
+            EtapeSeeder::class,          // 3. Ensuite les étapes
+            InfosVisaSeeder::class,      // 4. Enfin les infos visa
         ]);
     }
 }

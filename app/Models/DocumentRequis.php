@@ -10,6 +10,12 @@ class DocumentRequis extends Model
     use HasFactory;
 
     /**
+     * On précise le nom exact de la table
+     * car Laravel chercherait "document_requis" par défaut
+     */
+    protected $table = 'documents_requis';
+
+    /**
      * Les champs que l'on peut remplir en masse
      */
     protected $fillable = [
@@ -22,12 +28,11 @@ class DocumentRequis extends Model
      * Conversion automatique des types
      */
     protected $casts = [
-        'obligatoire' => 'boolean', // Converti en true/false
+        'obligatoire' => 'boolean',
     ];
 
     /**
      * Un document requis appartient à un service
-     * Relation : DocumentRequis → belongsTo → Service
      */
     public function service()
     {
@@ -36,7 +41,6 @@ class DocumentRequis extends Model
 
     /**
      * Un document requis peut être uploadé dans plusieurs dossiers
-     * Relation : DocumentRequis → hasMany → DossierDocument
      */
     public function dossierDocuments()
     {

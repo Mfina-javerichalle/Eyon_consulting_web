@@ -10,6 +10,12 @@ class InfosVisa extends Model
     use HasFactory;
 
     /**
+     * On précise le nom exact de la table
+     * car Laravel chercherait "infos_visas" par défaut
+     */
+    protected $table = 'infos_visa';
+
+    /**
      * Les champs que l'on peut remplir en masse
      */
     protected $fillable = [
@@ -22,7 +28,6 @@ class InfosVisa extends Model
 
     /**
      * Les infos visa appartiennent à un service
-     * Relation : InfosVisa → belongsTo → Service
      */
     public function service()
     {
