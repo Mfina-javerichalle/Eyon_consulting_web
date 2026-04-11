@@ -1,59 +1,211 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ELYON Consulting — Application Web
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> Plateforme de gestion des démarches de mobilité internationale  
+> BTS SIO — Option SLAM — Session 2026
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📌 Présentation du projet
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**ELYON Consulting** est une application web full-stack développée dans le cadre du BTS SIO SLAM.  
+Elle simule une plateforme numérique permettant à une entreprise spécialisée dans la mobilité internationale de gérer les dossiers de demande de visa de ses clients (visa étudiant, touristique, de travail).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+L'application remplace une gestion manuelle (e-mails, WhatsApp, papier) par un système centralisé, sécurisé et accessible depuis tout navigateur web.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 🎯 Fonctionnalités principales
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Espace Client
+- Inscription et connexion sécurisée (session Laravel)
+- Consultation des services disponibles (visa étudiant, touristique, travail)
+- Création et suivi de dossier avec étapes et statuts en temps réel
+- Upload de pièces justificatives (PDF, JPEG, PNG — max 5 Mo)
+- Consultation du statut des documents (en attente / validé / refusé)
+- Re-soumission d'un document refusé
+- Messagerie intégrée avec l'administrateur
+- Gestion du profil (nom, email, avatar, mot de passe)
+- Réinitialisation du mot de passe par email
+- Formulaire de contact
 
-## Laravel Sponsors
+### Espace Administrateur
+- Tableau de bord avec statistiques (dossiers, utilisateurs, services)
+- CRUD des services (ajout, modification, suppression)
+- Gestion des documents requis par service
+- Gestion des étapes par service
+- Gestion des informations visa et des frais
+- Validation / refus des documents soumis par les clients
+- Mise à jour des statuts des dossiers et des étapes
+- Gestion des utilisateurs (liste, profil, désactivation de compte)
+- Messagerie : répondre aux clients par dossier
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### API REST (pour l'application mobile)
+- Authentification sécurisée via Laravel Sanctum (Bearer Token)
+- Endpoints JSON pour tous les modules (services, dossiers, documents, étapes, messages)
+- Documentation et tests via Postman
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 🛠️ Stack technique
 
-## Contributing
+| Couche | Technologie |
+|--------|-------------|
+| Backend | PHP 8.2, Laravel 12 (MVC, Eloquent ORM) |
+| Frontend | Laravel Blade, Bootstrap 5, JavaScript ES6+ |
+| Base de données | MySQL 8 (XAMPP / phpMyAdmin) |
+| Authentification Web | Sessions Laravel |
+| Authentification API | Laravel Sanctum (Bearer Token) |
+| Migrations & Seeders | Eloquent (php artisan migrate) |
+| Outils | GitHub, Postman, StarUML, VS Code, XAMPP |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 🗄️ Structure de la base de données
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Table | Description |
+|-------|-------------|
+| `users` | Utilisateurs (clients et administrateurs) |
+| `services` | Types de visa proposés |
+| `documents_requis` | Pièces à fournir par service |
+| `etapes` | Étapes de traitement par service |
+| `infos_visa` | Informations visa et frais par service |
+| `dossiers` | Dossiers créés par les clients |
+| `dossier_documents` | Documents uploadés par dossier |
+| `dossier_etapes` | Suivi des étapes par dossier |
+| `messages` | Messagerie client ↔ administrateur |
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 🚀 Installation et lancement
 
-## License
+### Prérequis
+- PHP 8.2+
+- Composer
+- MySQL (XAMPP recommandé)
+- Node.js (optionnel)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Étapes
+
+**1. Cloner le dépôt**
+```bash
+git clone https://github.com/Mfina-javerichalle/Eyon_consulting_web.git
+cd Eyon_consulting_web
+```
+
+**2. Installer les dépendances**
+```bash
+composer install
+```
+
+**3. Configurer l'environnement**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Modifier le fichier `.env` :
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=elyon_consulting_v2
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+**4. Démarrer XAMPP** (Apache + MySQL)
+
+**5. Créer la base de données**  
+Dans phpMyAdmin, créer une base de données nommée `elyon_consulting_v2`
+
+**6. Exécuter les migrations et les seeders**
+```bash
+php artisan migrate --seed
+```
+
+**7. Créer le lien de stockage**
+```bash
+php artisan storage:link
+```
+
+**8. Lancer le serveur**
+```bash
+php artisan serve
+```
+
+**9. Accéder à l'application**
+```
+http://localhost:8000
+```
+
+---
+
+## 🔐 Comptes de test
+
+| Rôle | Email | Mot de passe |
+|------|-------|--------------|
+| Administrateur | admin@elyon.test | password |
+| Client | client@elyon.test | password |
+
+---
+
+## 📁 Structure du projet
+
+```
+elyon-consulting/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Web/        # Controllers pour les vues Blade
+│   │   │   └── Api/        # Controllers pour l'API REST (mobile)
+│   │   └── Middleware/     # AdminMiddleware, ClientMiddleware
+│   ├── Models/             # Modèles Eloquent
+│   └── Services/           # Logique métier partagée
+├── database/
+│   ├── migrations/         # Structure de la base de données
+│   └── seeders/            # Données de test
+├── resources/
+│   └── views/              # Vues Blade (HTML côté serveur)
+├── routes/
+│   ├── web.php             # Routes de l'application web
+│   └── api.php             # Routes de l'API REST
+└── public/                 # Fichiers accessibles publiquement
+```
+
+---
+
+## 📱 Application Mobile
+
+L'application mobile Android (React Native / Expo) consomme l'API REST de ce projet.  
+Dépôt mobile : [Elyon_consulting_mobile](https://github.com/Mfina-javerichalle/Elyon_consulting_mobile.git)
+
+---
+
+## 📄 Documentation
+
+Tous les documents sont disponibles sur Google Drive :  
+📂 [Accéder à la documentation](https://drive.google.com/drive/folders/1mnPxuYiy0xx9JAFyeN8Uq5jQe4GHWYnS?usp=sharing)
+
+Contenu :
+- Cahier des charges
+- Diagrammes UML (cas d'utilisation, classes, séquence)
+- Collection Postman
+- Manuel utilisateur
+
+---
+
+## 👩‍💻 Auteure
+
+**MFINA Javerichalle Maconslavie**  
+BTS SIO — Option SLAM  
+CFA SCHOLIA, Thiais  
+Session 2026  
+N° candidat : 02545873286
+
+---
+
+## 📋 Compétences BTS SIO couvertes
+
+- Concevoir et développer une solution applicative
+- Assurer la maintenance corrective ou évolutive d'une solution applicative
+- Gérer les données
