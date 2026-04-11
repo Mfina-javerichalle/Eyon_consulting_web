@@ -7,43 +7,31 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Création de la table users (utilisateurs)
+     * Contient les clients et les administrateurs
      */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
-        });
-
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
-        });
-
-        Schema::create('sessions', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
-            $table->string('ip_address', 45)->nullable();
-            $table->text('user_agent')->nullable();
-            $table->longText('payload');
-            $table->integer('last_activity')->index();
+            $table->id();                                          // Identifiant unique auto-incrémenté
+            $table->string('name');                                // Nom complet
+            $table->string('email')->unique();                     // Email unique (sert de login)
+            $table->string('telephone', 20)->nullable();           // Numéro de téléphone (optionnel)
+            $table->string('password');                            // Mot de passe hashé en Bcrypt
+            $table->enum('role', ['client', 'admin'])
+                  ->default('client');                             // Rôle : client ou admin
+            $table->boolean('actif')->default(true);               // Compte actif ou suspendu
+            $table->string('avatar')->nullable();                  // Photo de profil (optionnel)
+            $table->timestamps();                                  // created_at et updated_at
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Suppression de la table users
+     * Appelée quand on fait php artisan migrate:rollback
      */
     public function down(): void
     {
         Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
     }
 };
