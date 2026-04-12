@@ -9,7 +9,8 @@ use App\Http\Controllers\Web\Admin\DocumentRequisController;
 use App\Http\Controllers\Web\Admin\EtapeController;
 use App\Http\Controllers\Web\Admin\InfosVisaController;
 use App\Http\Controllers\Web\Admin\UserController;
-use App\Http\Controllers\Web\Admin\ProfileController;
+use App\Http\Controllers\Web\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Web\Client\ProfileController as ClientProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,7 +40,7 @@ Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name(
 Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
-// Modification mot de passe depuis le profil
+// Modification mot de passe depuis le profil (auth requis)
 Route::middleware('auth')->post('/change-password', [AuthController::class, 'changePassword'])->name('password.change');
 
 // Page services (temporaire)
@@ -62,9 +63,9 @@ Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
     // Dashboard principal
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    // Profil admin — avatar et infos
-    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('avatar.update');
-    Route::post('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
+    // Profil admin
+    Route::post('/profile/avatar', [AdminProfileController::class, 'updateAvatar'])->name('avatar.update');
+    Route::post('/profile/update', [AdminProfileController::class, 'updateProfile'])->name('profile.update');
 
     // CRUD Services
     Route::post('/services', [ServiceController::class, 'store'])->name('services.store');
@@ -97,12 +98,11 @@ Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware('client')->prefix('client')->name('client.')->group(function () {
-    Route::get('/dashboard', [ClientController::class, 'dashboard'])->name('dashboard');
-    Route::middleware('client')->prefix('client')->name('client.')->group(function () {
+
+    // Dashboard principal
     Route::get('/dashboard', [ClientController::class, 'dashboard'])->name('dashboard');
 
     // Profil client
-    Route::post('/profile/avatar', [\App\Http\Controllers\Web\Client\ProfileController::class, 'updateAvatar'])->name('avatar.update');
-    Route::post('/profile/update', [\App\Http\Controllers\Web\Client\ProfileController::class, 'updateProfile'])->name('profile.update');
-});
+    Route::post('/profile/avatar', [ClientProfileController::class, 'updateAvatar'])->name('avatar.update');
+    Route::post('/profile/update', [ClientProfileController::class, 'updateProfile'])->name('profile.update');
 });
