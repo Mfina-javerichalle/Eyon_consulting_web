@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ServiceController;
+use App\Http\Controllers\Api\DossierController;
+use App\Http\Controllers\Api\MessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -10,14 +13,14 @@ use App\Http\Controllers\Api\AuthController;
 |--------------------------------------------------------------------------
 */
 
-// Inscription
-Route::post('/auth/register', [AuthController::class, 'register']);
-
-// Connexion
-Route::post('/auth/login', [AuthController::class, 'login']);
-
-// Mot de passe oublié
+// Authentification
+Route::post('/auth/register',        [AuthController::class, 'register']);
+Route::post('/auth/login',           [AuthController::class, 'login']);
 Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
+
+// Services — publics (le mobile affiche la liste sans connexion)
+Route::get('/services',          [ServiceController::class, 'index']);
+Route::get('/services/{service}',[ServiceController::class, 'show']);
 
 /*
 |--------------------------------------------------------------------------
@@ -27,18 +30,17 @@ Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
 */
 Route::middleware('auth:sanctum')->group(function () {
 
-    // Déconnexion
+    // Auth
     Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::get('/auth/profil',  [AuthController::class, 'profil']);
 
-    // Profil de l'utilisateur connecté
-    Route::get('/auth/profil', [AuthController::class, 'profil']);
+    // Dossiers
+    Route::get('/dossiers',                          [DossierController::class, 'index']);
+    Route::post('/dossiers',                         [DossierController::class, 'store']);
+    Route::get('/dossiers/{dossier}',                [DossierController::class, 'show']);
+    Route::post('/dossiers/{dossier}/documents',     [DossierController::class, 'uploadDocument']);
 
-    // ── Les routes suivantes seront ajoutées dans les prochaines phases ──
-    // GET  /api/services          → liste des services
-    // GET  /api/dossiers          → mes dossiers
-    // POST /api/dossiers          → créer un dossier
-    // POST /api/dossiers/{id}/documents → uploader un document
-    // GET  /api/messages          → messagerie
-    // POST /api/messages          → envoyer un message
-
+    // Messages
+    Route::get('/dossiers/{dossier}/messages',  [MessageController::class, 'index']);
+    Route::post('/dossiers/{dossier}/messages', [MessageController::class, 'store']);
 });
