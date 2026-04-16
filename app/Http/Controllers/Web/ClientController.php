@@ -3,25 +3,30 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Dossier;
 use App\Models\Service;
-use Illuminate\Support\Facades\Auth;
+use App\Models\DossierDocument;
+use App\Models\Message;
 
 class ClientController extends Controller
 {
-    /**
-     * Dashboard client
-     * Affiche le résumé des dossiers du client connecté
-     */
+    // ══════════════════════════════════════════════════
+    // DASHBOARD PRINCIPAL
+    // ══════════════════════════════════════════════════
     public function dashboard()
     {
-        // Récupérer les dossiers du client connecté
-        $dossiers = Dossier::where('user_id', Auth::id())
-                           ->with('service') // Charge le service lié
-                           ->latest()        // Les plus récents en premier
-                           ->get();
+        $user = auth()->user();
 
-        // Statistiques personnelles du client
+        $dossiers = Dossier::where('user_id', $user->id)
+            ->with(['service', 'documents', 'messages'])
+            ->latest()
+            ->get();
+
+        $services = Service::all();
+
         $stats = [
             'total'    => $dossiers->count(),
             'attente'  => $dossiers->where('statut', 'en_attente')->count(),
@@ -30,6 +35,32 @@ class ClientController extends Controller
             'refuses'  => $dossiers->where('statut', 'refuse')->count(),
         ];
 
-        return view('client.dashboard', compact('dossiers', 'stats'));
+        return view('client.dashboard', compact('user', 'dossiers', 'services', 'stats'));
+    }
+
+    // ══════════════════════════════════════════════════
+    // CRÉER UN DOSSIER
+    // ══════════════════════════════════════════════════
+    public function storeDossier(Request $request)
+    {
+        $request->validate([
+            'service_id' => 'required|exists:services,id',
+        ]);
+
+        $exists = Dossier::where('user_id', auth()->id())
+            ->where('service_id', $request->service_id)
+            ->exists();
+
+        if ($exists) {
+            return back()->with('error', 'Vous avez déjà un dossier pour ce service.');
+        }
+
+        Dossier::create([
+            'user_id'    => auth()->id(),
+            'service_id' => $request->service_id,
+            'statut'     => 'en_attente',
+        ]);
+
+        return back()->with('success', 'Dossier créé avec succès. Vous pouvez maintenant uploader vos documents.');
     }
 }

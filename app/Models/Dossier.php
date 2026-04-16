@@ -37,7 +37,7 @@ class Dossier extends Model
     }
 
     /**
-     * Un dossier contient plusieurs documents uploadés
+     * Un dossier contient plusieurs documents uploadés par le client
      * Relation : Dossier → hasMany → DossierDocument
      */
     public function documents()
@@ -46,7 +46,7 @@ class Dossier extends Model
     }
 
     /**
-     * Un dossier contient plusieurs étapes
+     * Un dossier contient plusieurs étapes de traitement
      * Relation : Dossier → hasMany → DossierEtape
      */
     public function etapes()
@@ -55,12 +55,52 @@ class Dossier extends Model
     }
 
     /**
-     * Un dossier contient plusieurs messages
+     * Un dossier contient plusieurs messages client ↔ admin
+     * Triés du plus ancien au plus récent
      * Relation : Dossier → hasMany → Message
      */
     public function messages()
     {
         return $this->hasMany(Message::class, 'dossier_id')
-                    ->orderBy('created_at'); // Triés par date
+                    ->orderBy('created_at');
+    }
+
+    /**
+     * Vérifie si tous les documents obligatoires ont été uploadés
+     * Utile pour savoir si le dossier est complet
+     */
+    public function estComplet(): bool
+    {
+        // Récupérer les IDs des documents obligatoires du service
+        $documentsObligatoires = $this->service
+            ->documentsRequis()
+            ->where('obligatoire', true)
+            ->pluck('id');
+
+        // Récupérer les IDs des documents déjà uploadés pour ce dossier
+        $documentsUploades = $this->documents()
+            ->pluck('document_requis_id');
+
+        // Le dossier est complet si tous les documents obligatoires sont uploadés
+        return $documentsObligatoires->diff($documentsUploades)->isEmpty();
+    }
+
+    /**
+     * Compte les documents uploadés pour ce dossier
+     */
+    public function nombreDocumentsUploades(): int
+    {
+        return $this->documents()->count();
+    }
+
+    /**
+     * Compte les messages non lus pour un utilisateur donné
+     */
+    public function messagesNonLus(int $userId): int
+    {
+        return $this->messages()
+                    ->where('receiver_id', $userId)
+                    ->whereNull('read_at')
+                    ->count();
     }
 }

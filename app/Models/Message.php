@@ -4,14 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Message extends Model
 {
     use HasFactory;
 
-    /**
-     * Les champs que l'on peut remplir en masse
-     */
     protected $fillable = [
         'sender_id',
         'receiver_id',
@@ -20,28 +18,33 @@ class Message extends Model
     ];
 
     /**
-     * Un message a un expéditeur
-     * Relation : Message → belongsTo → User
+     * 🔹 Expéditeur du message
      */
-    public function expediteur()
+    public function expediteur(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sender_id');
     }
 
     /**
-     * Un message a un destinataire
-     * Relation : Message → belongsTo → User
+     * 🔹 Alias pour compatibilité avec messages.user
      */
-    public function destinataire()
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'sender_id');
+    }
+
+    /**
+     * 🔹 Destinataire du message
+     */
+    public function destinataire(): BelongsTo
     {
         return $this->belongsTo(User::class, 'receiver_id');
     }
 
     /**
-     * Un message appartient à un dossier
-     * Relation : Message → belongsTo → Dossier
+     * 🔹 Dossier lié au message
      */
-    public function dossier()
+    public function dossier(): BelongsTo
     {
         return $this->belongsTo(Dossier::class, 'dossier_id');
     }

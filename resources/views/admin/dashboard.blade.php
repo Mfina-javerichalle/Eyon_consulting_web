@@ -5,197 +5,207 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Administration — Elyon Consulting</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
-
     <style>
         :root {
-            --primary:        #0a2463;
-            --primary-light:  #1e40af;
-            --primary-xlight: #dbeafe;
-            --accent:         #f0a500;
-            --accent-light:   #fbbf24;
-            --dark:           #07152b;
-            --success:        #059669;
-            --warning:        #d97706;
-            --danger:         #dc2626;
-            --info:           #0891b2;
-            --muted:          #64748b;
-            --border:         #e2e8f0;
-            --bg-soft:        #f8fafc;
-            --sidebar-w:      260px;
-            --topbar-h:       64px;
-            --radius:         12px;
-            --shadow-sm:      0 2px 8px rgba(10,36,99,.08);
-            --shadow-md:      0 4px 20px rgba(10,36,99,.12);
-            --shadow-lg:      0 8px 40px rgba(10,36,99,.16);
-            --font-display:   'Playfair Display', Georgia, serif;
-            --font-body:      'DM Sans', system-ui, sans-serif;
-            --transition:     0.25s ease;
+            --primary:#0a2463;--primary-light:#1e40af;--primary-xlight:#dbeafe;
+            --accent:#f0a500;--accent-light:#fbbf24;--dark:#07152b;
+            --success:#059669;--warning:#d97706;--danger:#dc2626;--info:#0891b2;
+            --muted:#64748b;--border:#e2e8f0;--bg-soft:#f8fafc;
+            --sidebar-w:260px;--topbar-h:64px;--radius:12px;
+            --shadow-sm:0 2px 8px rgba(10,36,99,.08);
+            --shadow-md:0 4px 20px rgba(10,36,99,.12);
+            --shadow-lg:0 8px 40px rgba(10,36,99,.16);
+            --font-display:'Playfair Display',Georgia,serif;
+            --font-body:'DM Sans',system-ui,sans-serif;
+            --transition:.25s ease;
         }
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        body { font-family: var(--font-body); background: var(--bg-soft); color: #1e293b; min-height: 100vh; overflow-x: hidden; }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{scroll-behavior:smooth}
+        body{font-family:var(--font-body);background:var(--bg-soft);color:#1e293b;min-height:100vh;overflow-x:hidden}
 
         /* SIDEBAR */
-        .admin-sidebar { position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh; background: var(--dark); display: flex; flex-direction: column; z-index: 1040; overflow-y: auto; transition: transform var(--transition); }
-        .sidebar-logo { padding: 1.5rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,.07); flex-shrink: 0; }
-        .sidebar-logo .brand { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: -.5px; text-decoration: none; display: flex; align-items: center; gap: .6rem; }
-        .sidebar-logo .brand-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--accent-light)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: .9rem; color: var(--dark); font-weight: 700; flex-shrink: 0; }
-        .sidebar-logo small { display: block; font-family: var(--font-body); font-size: .65rem; color: rgba(255,255,255,.4); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
-        .sidebar-nav { padding: 1rem 0; flex: 1; }
-        .sidebar-section-title { font-size: .6rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.28); padding: .75rem 1.25rem .35rem; }
-        .sidebar-nav .nav-item { padding: .1rem .75rem; }
-        .sidebar-nav .nav-link { display: flex; align-items: center; gap: .75rem; padding: .65rem .75rem; border-radius: 8px; color: rgba(255,255,255,.62); font-size: .875rem; font-weight: 500; transition: all var(--transition); position: relative; cursor: pointer; text-decoration: none; }
-        .sidebar-nav .nav-link i { font-size: 1rem; flex-shrink: 0; }
-        .sidebar-nav .nav-link:hover, .sidebar-nav .nav-link.active { background: rgba(255,255,255,.07); color: #fff; }
-        .sidebar-nav .nav-link.active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 60%; background: var(--accent); border-radius: 0 3px 3px 0; }
-        .sidebar-nav .badge-count { margin-left: auto; background: var(--accent); color: var(--dark); font-size: .65rem; font-weight: 700; padding: .15rem .45rem; border-radius: 20px; min-width: 20px; text-align: center; }
-        .sidebar-footer { padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,.07); }
-        .sidebar-footer .admin-meta { display: flex; align-items: center; gap: .75rem; }
-        .sidebar-footer .avatar-sm { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-light), var(--primary)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: .8rem; font-weight: 700; flex-shrink: 0; overflow: hidden; }
-        .sidebar-footer .avatar-sm img { width: 100%; height: 100%; object-fit: cover; }
-        .sidebar-footer .admin-info { flex: 1; min-width: 0; }
-        .sidebar-footer .admin-name { font-size: .8rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .sidebar-footer .admin-role { font-size: .65rem; color: rgba(255,255,255,.38); }
+        .admin-sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--dark);display:flex;flex-direction:column;z-index:1040;overflow-y:auto;transition:transform var(--transition)}
+        .sidebar-logo{padding:1.5rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
+        .sidebar-logo .brand{font-family:var(--font-display);font-size:1.35rem;font-weight:700;color:#fff;text-decoration:none;display:flex;align-items:center;gap:.6rem}
+        .sidebar-logo .brand-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent-light));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--dark);font-weight:700;flex-shrink:0}
+        .sidebar-logo small{display:block;font-size:.65rem;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+        .sidebar-nav{padding:1rem 0;flex:1}
+        .sidebar-section-title{font-size:.6rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.28);padding:.75rem 1.25rem .35rem}
+        .sidebar-nav .nav-item{padding:.1rem .75rem}
+        .sidebar-nav .nav-link{display:flex;align-items:center;gap:.75rem;padding:.65rem .75rem;border-radius:8px;color:rgba(255,255,255,.62);font-size:.875rem;font-weight:500;transition:all var(--transition);position:relative;cursor:pointer;text-decoration:none}
+        .sidebar-nav .nav-link i{font-size:1rem;flex-shrink:0}
+        .sidebar-nav .nav-link:hover,.sidebar-nav .nav-link.active{background:rgba(255,255,255,.07);color:#fff}
+        .sidebar-nav .nav-link.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--accent);border-radius:0 3px 3px 0}
+        .sidebar-nav .badge-count{margin-left:auto;background:var(--accent);color:var(--dark);font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:20px;min-width:20px;text-align:center}
+        .sidebar-footer{padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,.07)}
+        .sidebar-footer .admin-meta{display:flex;align-items:center;gap:.75rem}
+        .sidebar-footer .avatar-sm{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary-light),var(--primary));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;font-weight:700;flex-shrink:0;overflow:hidden}
+        .sidebar-footer .avatar-sm img{width:100%;height:100%;object-fit:cover}
+        .sidebar-footer .admin-info{flex:1;min-width:0}
+        .sidebar-footer .admin-name{font-size:.8rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .sidebar-footer .admin-role{font-size:.65rem;color:rgba(255,255,255,.38)}
 
         /* TOPBAR */
-        .admin-topbar { position: fixed; top: 0; left: var(--sidebar-w); right: 0; height: var(--topbar-h); background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 1.5rem; gap: 1rem; z-index: 1030; box-shadow: var(--shadow-sm); }
-        .topbar-title { font-size: 1rem; font-weight: 600; color: var(--primary); flex: 1; }
-        .topbar-actions { display: flex; align-items: center; gap: .75rem; }
-        .topbar-icon-btn { width: 38px; height: 38px; border-radius: 50%; border: none; background: var(--bg-soft); display: flex; align-items: center; justify-content: center; color: var(--muted); cursor: pointer; transition: all var(--transition); position: relative; }
-        .topbar-icon-btn:hover { background: var(--primary-xlight); color: var(--primary); }
-        .notif-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; border: 2px solid #fff; }
+        .admin-topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:var(--topbar-h);background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1.5rem;gap:1rem;z-index:1030;box-shadow:var(--shadow-sm)}
+        .topbar-title{font-size:1rem;font-weight:600;color:var(--primary);flex:1}
+        .topbar-actions{display:flex;align-items:center;gap:.75rem}
+        .topbar-icon-btn{width:38px;height:38px;border-radius:50%;border:none;background:var(--bg-soft);display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;transition:all var(--transition);position:relative}
+        .topbar-icon-btn:hover{background:var(--primary-xlight);color:var(--primary)}
+        .notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--danger);border-radius:50%;border:2px solid #fff}
+        .profile-trigger{cursor:pointer;border-radius:18px;background:rgba(255,255,255,.75);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.45);box-shadow:0 10px 30px rgba(0,0,0,.08);transition:all .25s ease;width:fit-content}
+        .profile-trigger:hover{transform:translateY(-2px)}
+        .profile-trigger-avatar{width:44px;height:44px;border-radius:50%;padding:2px;background:linear-gradient(135deg,#0d6efd,#6f42c1);flex-shrink:0}
+        .profile-trigger-avatar img{width:100%;height:100%;object-fit:cover;border:2px solid #fff;border-radius:50%}
+        .profile-trigger-label{font-weight:700;color:#1f2937;line-height:1.1}
+        .profile-trigger-sub{color:#6b7280;font-size:.82rem}
 
         /* MAIN */
-        .admin-main { margin-left: var(--sidebar-w); margin-top: var(--topbar-h); padding: 1.75rem; min-height: calc(100vh - var(--topbar-h)); }
-        .admin-panel { display: none; }
-        .admin-panel.active { display: block; }
+        .admin-main{margin-left:var(--sidebar-w);margin-top:var(--topbar-h);padding:1.75rem;min-height:calc(100vh - var(--topbar-h))}
+        .admin-panel{display:none}
+        .admin-panel.active{display:block}
 
         /* STAT CARDS */
-        .stat-card { background: #fff; border-radius: var(--radius); padding: 1.25rem 1.5rem; box-shadow: var(--shadow-sm); border: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; transition: box-shadow var(--transition); }
-        .stat-card:hover { box-shadow: var(--shadow-md); }
-        .stat-icon { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
-        .stat-icon.blue   { background: var(--primary-xlight); color: var(--primary); }
-        .stat-icon.gold   { background: #fef3c7; color: var(--accent); }
-        .stat-icon.green  { background: #d1fae5; color: var(--success); }
-        .stat-icon.red    { background: #fee2e2; color: var(--danger); }
-        .stat-icon.cyan   { background: #cffafe; color: var(--info); }
-        .stat-icon.purple { background: #ede9fe; color: #7c3aed; }
-        .stat-value { font-size: 1.75rem; font-weight: 700; color: var(--primary); line-height: 1; }
-        .stat-label { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+        .stat-card{background:#fff;border-radius:var(--radius);padding:1.25rem 1.5rem;box-shadow:var(--shadow-sm);border:1px solid var(--border);display:flex;align-items:center;gap:1rem;transition:box-shadow var(--transition)}
+        .stat-card:hover{box-shadow:var(--shadow-md)}
+        .stat-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+        .stat-icon.blue{background:var(--primary-xlight);color:var(--primary)}
+        .stat-icon.gold{background:#fef3c7;color:var(--accent)}
+        .stat-icon.green{background:#d1fae5;color:var(--success)}
+        .stat-icon.red{background:#fee2e2;color:var(--danger)}
+        .stat-icon.cyan{background:#cffafe;color:var(--info)}
+        .stat-icon.purple{background:#ede9fe;color:#7c3aed}
+        .stat-value{font-size:1.75rem;font-weight:700;color:var(--primary);line-height:1}
+        .stat-label{font-size:.78rem;color:var(--muted);margin-top:2px}
 
         /* PANEL CARD */
-        .panel-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden; }
-        .panel-card-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: .75rem; }
-        .panel-card-title { font-size: .95rem; font-weight: 600; color: var(--primary); flex: 1; }
-        .panel-card-body { padding: 1.25rem 1.5rem; }
+        .panel-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-sm);border:1px solid var(--border);overflow:hidden}
+        .panel-card-header{padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem}
+        .panel-card-title{font-size:.95rem;font-weight:600;color:var(--primary);flex:1}
+        .panel-card-body{padding:1.25rem 1.5rem}
 
         /* TABLES */
-        .admin-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
-        .admin-table thead th { background: var(--bg-soft); color: var(--muted); font-weight: 600; font-size: .72rem; letter-spacing: .5px; text-transform: uppercase; padding: .75rem 1rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
-        .admin-table tbody tr { border-bottom: 1px solid var(--border); transition: background var(--transition); }
-        .admin-table tbody tr:hover { background: #f8faff; }
-        .admin-table td { padding: .75rem 1rem; vertical-align: middle; }
-        .admin-table td:last-child { text-align: right; }
+        .admin-table{width:100%;border-collapse:collapse;font-size:.84rem}
+        .admin-table thead th{background:var(--bg-soft);color:var(--muted);font-weight:600;font-size:.72rem;letter-spacing:.5px;text-transform:uppercase;padding:.75rem 1rem;border-bottom:1px solid var(--border);white-space:nowrap}
+        .admin-table tbody tr{border-bottom:1px solid var(--border);transition:background var(--transition)}
+        .admin-table tbody tr:hover{background:#f8faff}
+        .admin-table td{padding:.75rem 1rem;vertical-align:middle}
+        .admin-table td:last-child{text-align:right}
 
         /* BADGES */
-        .badge-status { display: inline-flex; align-items: center; gap: .3rem; padding: .25rem .65rem; border-radius: 20px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
-        .badge-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
-        .badge-en_attente { background: #fef3c7; color: #92400e; }
-        .badge-en_attente::before { background: #f59e0b; }
-        .badge-en_cours   { background: var(--primary-xlight); color: var(--primary); }
-        .badge-en_cours::before   { background: var(--primary); }
-        .badge-valide     { background: #d1fae5; color: #065f46; }
-        .badge-valide::before     { background: var(--success); }
-        .badge-refuse     { background: #fee2e2; color: #991b1b; }
-        .badge-refuse::before     { background: var(--danger); }
+        .badge-status{display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .65rem;border-radius:20px;font-size:.72rem;font-weight:600;white-space:nowrap}
+        .badge-status::before{content:'';width:6px;height:6px;border-radius:50%;display:inline-block}
+        .badge-en_attente{background:#fef3c7;color:#92400e}.badge-en_attente::before{background:#f59e0b}
+        .badge-en_cours{background:var(--primary-xlight);color:var(--primary)}.badge-en_cours::before{background:var(--primary)}
+        .badge-valide{background:#d1fae5;color:#065f46}.badge-valide::before{background:var(--success)}
+        .badge-refuse{background:#fee2e2;color:#991b1b}.badge-refuse::before{background:var(--danger)}
 
         /* BOUTONS */
-        .btn-primary-elyon { background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: .5rem 1.1rem; font-size: .84rem; font-weight: 500; display: inline-flex; align-items: center; gap: .4rem; transition: all var(--transition); cursor: pointer; }
-        .btn-primary-elyon:hover { background: var(--primary-light); color: #fff; box-shadow: var(--shadow-sm); }
-        .btn-accent-elyon { background: var(--accent); color: var(--dark); border: none; border-radius: 8px; padding: .5rem 1.1rem; font-size: .84rem; font-weight: 600; display: inline-flex; align-items: center; gap: .4rem; transition: all var(--transition); cursor: pointer; }
-        .btn-accent-elyon:hover { background: var(--accent-light); box-shadow: var(--shadow-sm); }
-        .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: .4rem .8rem; font-size: .8rem; font-weight: 500; transition: all var(--transition); cursor: pointer; }
-        .btn-ghost:hover { background: var(--bg-soft); color: var(--primary); border-color: var(--primary); }
-        .btn-danger-sm { background: #fee2e2; color: var(--danger); border: none; border-radius: 6px; padding: .3rem .65rem; font-size: .75rem; font-weight: 500; cursor: pointer; transition: all var(--transition); }
-        .btn-danger-sm:hover { background: var(--danger); color: #fff; }
-        .btn-success-sm { background: #d1fae5; color: var(--success); border: none; border-radius: 6px; padding: .3rem .65rem; font-size: .75rem; font-weight: 500; cursor: pointer; transition: all var(--transition); }
-        .btn-success-sm:hover { background: var(--success); color: #fff; }
-        .btn-edit-sm { background: var(--primary-xlight); color: var(--primary); border: none; border-radius: 6px; padding: .3rem .65rem; font-size: .75rem; font-weight: 500; cursor: pointer; transition: all var(--transition); }
-        .btn-edit-sm:hover { background: var(--primary); color: #fff; }
+        .btn-primary-elyon{background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.5rem 1.1rem;font-size:.84rem;font-weight:500;display:inline-flex;align-items:center;gap:.4rem;transition:all var(--transition);cursor:pointer}
+        .btn-primary-elyon:hover{background:var(--primary-light);color:#fff}
+        .btn-accent-elyon{background:var(--accent);color:var(--dark);border:none;border-radius:8px;padding:.5rem 1.1rem;font-size:.84rem;font-weight:600;display:inline-flex;align-items:center;gap:.4rem;transition:all var(--transition);cursor:pointer}
+        .btn-accent-elyon:hover{background:var(--accent-light)}
+        .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:.4rem .8rem;font-size:.8rem;font-weight:500;transition:all var(--transition);cursor:pointer}
+        .btn-ghost:hover{background:var(--bg-soft);color:var(--primary);border-color:var(--primary)}
+        .btn-danger-sm{background:#fee2e2;color:var(--danger);border:none;border-radius:6px;padding:.3rem .65rem;font-size:.75rem;font-weight:500;cursor:pointer;transition:all var(--transition)}
+        .btn-danger-sm:hover{background:var(--danger);color:#fff}
+        .btn-success-sm{background:#d1fae5;color:var(--success);border:none;border-radius:6px;padding:.3rem .65rem;font-size:.75rem;font-weight:500;cursor:pointer;transition:all var(--transition)}
+        .btn-success-sm:hover{background:var(--success);color:#fff}
+        .btn-edit-sm{background:var(--primary-xlight);color:var(--primary);border:none;border-radius:6px;padding:.3rem .65rem;font-size:.75rem;font-weight:500;cursor:pointer;transition:all var(--transition)}
+        .btn-edit-sm:hover{background:var(--primary);color:#fff}
+        .btn-view-sm{background:#f0f9ff;color:var(--info);border:none;border-radius:6px;padding:.3rem .65rem;font-size:.75rem;font-weight:500;cursor:pointer;transition:all var(--transition);display:inline-flex;align-items:center;gap:.3rem}
+        .btn-view-sm:hover{background:var(--info);color:#fff}
+        .btn-download{background:#d1fae5;color:var(--success);border:none;border-radius:6px;padding:.3rem .75rem;font-size:.75rem;font-weight:600;cursor:pointer;transition:all var(--transition);text-decoration:none;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap}
+        .btn-download:hover{background:var(--success);color:#fff}
 
         /* FORMULAIRES */
-        .form-label-elyon { font-size: .8rem; font-weight: 600; color: var(--primary); margin-bottom: .35rem; display: block; }
-        .form-control-elyon { width: 100%; padding: .6rem .9rem; border: 1.5px solid var(--border); border-radius: 8px; font-family: var(--font-body); font-size: .875rem; color: #1e293b; background: #fff; transition: border-color var(--transition), box-shadow var(--transition); outline: none; }
-        .form-control-elyon:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(10,36,99,.08); }
-        textarea.form-control-elyon { resize: vertical; min-height: 80px; }
-        select.form-control-elyon { appearance: none; cursor: pointer; }
+        .form-label-elyon{font-size:.8rem;font-weight:600;color:var(--primary);margin-bottom:.35rem;display:block}
+        .form-control-elyon{width:100%;padding:.6rem .9rem;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-body);font-size:.875rem;color:#1e293b;background:#fff;transition:border-color var(--transition),box-shadow var(--transition);outline:none}
+        .form-control-elyon:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(10,36,99,.08)}
+        textarea.form-control-elyon{resize:vertical;min-height:90px}
+        select.form-control-elyon{appearance:none;cursor:pointer}
 
         /* SECTION HEADING */
-        .section-heading { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.5rem; }
-        .section-heading h2 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--primary); margin: 0; }
-        .section-heading .heading-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--primary-xlight); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: var(--primary); flex-shrink: 0; }
-        .section-heading .ms-auto { margin-left: auto; }
+        .section-heading{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+        .section-heading h2{font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:var(--primary);margin:0}
+        .section-heading .heading-icon{width:44px;height:44px;border-radius:10px;background:var(--primary-xlight);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--primary);flex-shrink:0}
 
         /* USER CARD */
-        .user-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; display: flex; align-items: center; gap: 1rem; transition: box-shadow var(--transition); }
-        .user-card:hover { box-shadow: var(--shadow-md); }
-        .user-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-light)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: .9rem; font-weight: 700; flex-shrink: 0; }
-        .user-info .user-name { font-weight: 600; font-size: .9rem; color: #1e293b; }
-        .user-info .user-email { font-size: .75rem; color: var(--muted); }
+        .user-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.25rem;display:flex;align-items:center;gap:1rem;transition:box-shadow var(--transition)}
+        .user-card:hover{box-shadow:var(--shadow-md)}
+        .user-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;font-weight:700;flex-shrink:0}
+        .user-info .user-name{font-weight:600;font-size:.9rem;color:#1e293b}
+        .user-info .user-email{font-size:.75rem;color:var(--muted)}
 
         /* FILTRES */
-        .filter-bar { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.25rem; }
-        .filter-bar select, .filter-bar input { border: 1.5px solid var(--border); border-radius: 8px; padding: .45rem .8rem; font-family: var(--font-body); font-size: .82rem; background: #fff; color: #1e293b; outline: none; transition: border-color var(--transition); }
-        .filter-bar select:focus, .filter-bar input:focus { border-color: var(--primary); }
+        .filter-bar{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin-bottom:1.25rem}
+        .filter-bar select,.filter-bar input{border:1.5px solid var(--border);border-radius:8px;padding:.45rem .8rem;font-family:var(--font-body);font-size:.82rem;background:#fff;color:#1e293b;outline:none;transition:border-color var(--transition)}
+        .filter-bar select:focus,.filter-bar input:focus{border-color:var(--primary)}
 
         /* MODAL */
-        .modal-content { border-radius: var(--radius); border: none; box-shadow: var(--shadow-lg); }
-        .modal-header { background: var(--primary); color: #fff; border-radius: var(--radius) var(--radius) 0 0; padding: 1rem 1.5rem; }
-        .modal-title { font-family: var(--font-display); font-size: 1.1rem; color: #fff; }
-        .modal-header .btn-close { filter: invert(1); opacity: .7; }
-        .modal-body { padding: 1.5rem; }
-        .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); }
+        .modal-content{border-radius:var(--radius);border:none;box-shadow:var(--shadow-lg)}
+        .modal-header{background:var(--primary);color:#fff;border-radius:var(--radius) var(--radius) 0 0;padding:1rem 1.5rem}
+        .modal-title{font-family:var(--font-display);font-size:1.1rem;color:#fff}
+        .modal-header .btn-close{filter:invert(1);opacity:.7}
+        .modal-body{padding:1.5rem}
+        .modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border)}
 
-        /* MOBILE */
-        @media (max-width: 991.98px) {
-            .admin-sidebar { transform: translateX(-100%); }
-            .admin-sidebar.show { transform: translateX(0); }
-            .admin-topbar { left: 0; }
-            .admin-main { margin-left: 0; }
-            .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1035; display: none; }
-            .sidebar-overlay.show { display: block; }
-        }
+        /* CHAT */
+        .chat-container{max-height:300px;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.75rem;background:#f8fafc;border-radius:10px;border:1px solid var(--border)}
+        .chat-bubble{max-width:82%;padding:.65rem 1rem;border-radius:14px;font-size:.85rem;line-height:1.5;word-break:break-word}
+        .chat-bubble-admin{align-self:flex-end;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;border-bottom-right-radius:4px}
+        .chat-bubble-client{align-self:flex-start;background:#fff;color:#1e293b;border:1px solid var(--border);border-bottom-left-radius:4px;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+        .chat-meta{font-size:.68rem;opacity:.7;margin-top:.3rem}
+        .chat-meta-admin{text-align:right;color:rgba(255,255,255,.7)}
+        .chat-meta-client{text-align:left;color:var(--muted)}
+        .chat-sender-label{font-size:.68rem;font-weight:700;margin-bottom:.2rem}
+        .chat-sender-label-admin{color:var(--primary);text-align:right}
+        .chat-sender-label-client{color:var(--muted);text-align:left}
+        .chat-empty{text-align:center;color:var(--muted);font-size:.85rem;padding:2rem 0;display:flex;flex-direction:column;align-items:center;gap:.5rem;width:100%}
+
+        /* DOCUMENTS */
+        .doc-item{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border-radius:10px;border:1px solid var(--border);background:#fff;margin-bottom:.5rem;transition:box-shadow var(--transition)}
+        .doc-item:hover{box-shadow:var(--shadow-sm)}
+        .doc-icon{width:38px;height:38px;border-radius:8px;background:var(--primary-xlight);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--primary);font-size:1rem}
+        .doc-icon.pdf{background:#fee2e2;color:var(--danger)}
+        .doc-icon.img{background:#d1fae5;color:var(--success)}
+        .doc-icon.word{background:#dbeafe;color:#2563eb}
+        .doc-name{font-size:.85rem;font-weight:600;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .doc-date{font-size:.72rem;color:var(--muted)}
+        .doc-empty{text-align:center;color:var(--muted);font-size:.85rem;padding:2rem 0;display:flex;flex-direction:column;align-items:center;gap:.5rem}
+        .doc-empty i{font-size:2rem;opacity:.3}
 
         /* MISC */
-        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
-        .empty-state i { font-size: 2.5rem; opacity: .3; display: block; margin-bottom: .75rem; }
-        .empty-state p { font-size: .875rem; }
-        .alert-elyon { border-radius: 10px; border: none; font-size: .84rem; padding: .9rem 1.1rem; }
-        .inline-form { display: inline; }
-        .tag-pill { display: inline-block; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 20px; font-size: .72rem; padding: .15rem .55rem; color: var(--muted); }
-        .scrollable-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .empty-state{text-align:center;padding:3rem 1rem;color:var(--muted)}
+        .empty-state i{font-size:2.5rem;opacity:.3;display:block;margin-bottom:.75rem}
+        .empty-state p{font-size:.875rem}
+        .alert-elyon{border-radius:10px;border:none;font-size:.84rem;padding:.9rem 1.1rem}
+        .inline-form{display:inline}
+        .tag-pill{display:inline-block;background:var(--bg-soft);border:1px solid var(--border);border-radius:20px;font-size:.72rem;padding:.15rem .55rem;color:var(--muted)}
+        .scrollable-table{overflow-x:auto;-webkit-overflow-scrolling:touch}
 
-        /* PROFILE TRIGGER */
-        .profile-trigger { cursor: pointer; border-radius: 18px; background: rgba(255,255,255,0.75); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.45); box-shadow: 0 10px 30px rgba(0,0,0,0.08); transition: all 0.25s ease; width: fit-content; }
-        .profile-trigger:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(0,0,0,0.12); }
-        .profile-trigger-avatar { width: 44px; height: 44px; border-radius: 50%; padding: 2px; background: linear-gradient(135deg, #0d6efd, #6f42c1); flex-shrink: 0; }
-        .profile-trigger-avatar img { width: 100%; height: 100%; object-fit: cover; border: 2px solid #fff; border-radius: 50%; }
-        .profile-trigger-label { font-weight: 700; color: #1f2937; line-height: 1.1; }
-        .profile-trigger-sub { color: #6b7280; font-size: 0.82rem; }
+        /* MOBILE */
+        @media(max-width:991.98px){
+            .admin-sidebar{transform:translateX(-100%)}
+            .admin-sidebar.show{transform:translateX(0)}
+            .admin-topbar{left:0}
+            .admin-main{margin-left:0}
+            .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1035;display:none}
+            .sidebar-overlay.show{display:block}
+        }
+        @media(max-width:576px){.admin-main{padding:1rem}.modal-dialog{margin:.5rem}}
     </style>
 </head>
 <body>
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-{{-- ====== SIDEBAR ====== --}}
+{{-- ════ SIDEBAR ════ --}}
 <aside class="admin-sidebar" id="adminSidebar">
     <div class="sidebar-logo">
         <a href="{{ route('home') }}" class="brand">
@@ -203,78 +213,43 @@
             <div>Elyon Consulting<small>Administration</small></div>
         </a>
     </div>
-
     <nav class="sidebar-nav">
         <div class="sidebar-section-title">Général</div>
-        <div class="nav-item">
-            <span class="nav-link active" onclick="showPanel('dashboard', this)">
-                <i class="bi bi-grid-1x2"></i> Tableau de bord
-            </span>
-        </div>
-
+        <div class="nav-item"><span class="nav-link active" onclick="showPanel('dashboard',this)"><i class="bi bi-grid-1x2"></i> Tableau de bord</span></div>
         <div class="sidebar-section-title">Dossiers</div>
         <div class="nav-item">
-            <span class="nav-link" onclick="showPanel('dossiers', this)">
+            <span class="nav-link" onclick="showPanel('dossiers',this)">
                 <i class="bi bi-folder2-open"></i> Tous les dossiers
                 @if(isset($stats['dossiers_attente']) && $stats['dossiers_attente'] > 0)
                     <span class="badge-count">{{ $stats['dossiers_attente'] }}</span>
                 @endif
             </span>
         </div>
-        <div class="nav-item">
-            <span class="nav-link" onclick="showPanel('utilisateurs-recents', this)">
-                <i class="bi bi-person-plus"></i> Nouveaux clients
-            </span>
-        </div>
-
+        <div class="nav-item"><span class="nav-link" onclick="showPanel('utilisateurs-recents',this)"><i class="bi bi-person-plus"></i> Nouveaux clients</span></div>
         <div class="sidebar-section-title">Contenu</div>
-        <div class="nav-item">
-            <span class="nav-link" onclick="showPanel('services', this)">
-                <i class="bi bi-briefcase"></i> Services
-            </span>
-        </div>
-        <div class="nav-item">
-            <span class="nav-link" onclick="showPanel('documents', this)">
-                <i class="bi bi-file-earmark-text"></i> Documents requis
-            </span>
-        </div>
-        <div class="nav-item">
-            <span class="nav-link" onclick="showPanel('etapes', this)">
-                <i class="bi bi-list-check"></i> Étapes
-            </span>
-        </div>
-        <div class="nav-item">
-            <span class="nav-link" onclick="showPanel('infos-visa', this)">
-                <i class="bi bi-passport"></i> Infos Visa
-            </span>
-        </div>
-
+        <div class="nav-item"><span class="nav-link" onclick="showPanel('services',this)"><i class="bi bi-briefcase"></i> Services</span></div>
+        <div class="nav-item"><span class="nav-link" onclick="showPanel('documents',this)"><i class="bi bi-file-earmark-text"></i> Documents requis</span></div>
+        <div class="nav-item"><span class="nav-link" onclick="showPanel('etapes',this)"><i class="bi bi-list-check"></i> Étapes</span></div>
+        <div class="nav-item"><span class="nav-link" onclick="showPanel('infos-visa',this)"><i class="bi bi-passport"></i> Infos Visa</span></div>
         <div class="sidebar-section-title">Comptes</div>
-        <div class="nav-item">
-            <span class="nav-link" onclick="showPanel('utilisateurs', this)">
-                <i class="bi bi-people"></i> Utilisateurs
-            </span>
-        </div>
+        <div class="nav-item"><span class="nav-link" onclick="showPanel('utilisateurs',this)"><i class="bi bi-people"></i> Utilisateurs</span></div>
     </nav>
-
     <div class="sidebar-footer">
         <div class="admin-meta">
-            {{-- Avatar dans la sidebar --}}
             <div class="avatar-sm">
                 @if(auth()->user()->avatar)
-                    <img src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Avatar">
+                    <img src="{{ asset('storage/'.auth()->user()->avatar) }}" alt="Avatar" id="sidebarAvatarImg">
                 @else
-                    {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+                    {{ strtoupper(substr(auth()->user()->name??'A',0,1)) }}
                 @endif
             </div>
             <div class="admin-info">
-                <div class="admin-name">{{ auth()->user()->name ?? 'Administrateur' }}</div>
+                <div class="admin-name">{{ auth()->user()->name??'Administrateur' }}</div>
                 <div class="admin-role">Super Admin</div>
             </div>
             <form method="POST" action="{{ route('logout') }}" class="inline-form">
                 @csrf
-                <button type="submit" title="Déconnexion"
-                        style="background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;padding:.25rem;">
+                <button type="submit" style="background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;padding:.25rem;" title="Déconnexion">
                     <i class="bi bi-box-arrow-right"></i>
                 </button>
             </form>
@@ -282,31 +257,19 @@
     </div>
 </aside>
 
-{{-- ====== TOPBAR ====== --}}
+{{-- ════ TOPBAR ════ --}}
 <header class="admin-topbar">
-    <button class="d-lg-none topbar-icon-btn me-1" onclick="toggleSidebar()">
-        <i class="bi bi-list" style="font-size:1.2rem;"></i>
-    </button>
+    <button class="d-lg-none topbar-icon-btn me-1" onclick="toggleSidebar()"><i class="bi bi-list" style="font-size:1.2rem;"></i></button>
     <span class="topbar-title" id="topbarTitle">Tableau de bord</span>
     <div class="topbar-actions">
-        <a href="{{ route('home') }}" target="_blank" class="topbar-icon-btn" title="Voir le site">
-            <i class="bi bi-box-arrow-up-right"></i>
-        </a>
-        <button class="topbar-icon-btn" title="Notifications" onclick="showPanel('dossiers', null)">
+        <a href="{{ route('home') }}" target="_blank" class="topbar-icon-btn" title="Voir le site"><i class="bi bi-box-arrow-up-right"></i></a>
+        <button class="topbar-icon-btn" title="Dossiers en attente" onclick="showPanel('dossiers',null)">
             <i class="bi bi-bell"></i>
-            @if(isset($stats['dossiers_attente']) && $stats['dossiers_attente'] > 0)
-                <span class="notif-dot"></span>
-            @endif
+            @if(isset($stats['dossiers_attente']) && $stats['dossiers_attente'] > 0)<span class="notif-dot"></span>@endif
         </button>
-
-        {{-- Bouton profil — avatar mis à jour avec storage/ --}}
-        <div class="profile-trigger d-flex align-items-center gap-3 px-3 py-2"
-             data-bs-toggle="modal" data-bs-target="#profileModal">
+        <div class="profile-trigger d-flex align-items-center gap-3 px-3 py-2" data-bs-toggle="modal" data-bs-target="#profileModal">
             <div class="profile-trigger-avatar">
-                <img src="{{ auth()->user()->avatar
-                    ? asset('storage/' . auth()->user()->avatar)
-                    : asset('images/avatar.png') }}"
-                    class="rounded-circle" alt="Avatar admin" id="topbarAvatarImg">
+                <img src="{{ auth()->user()->avatar ? asset('storage/'.auth()->user()->avatar) : asset('images/avatar.png') }}" alt="Avatar" id="topbarAvatarImg">
             </div>
             <div class="d-none d-md-block text-start">
                 <div class="profile-trigger-label">Mon profil</div>
@@ -316,10 +279,9 @@
     </div>
 </header>
 
-{{-- ====== MAIN ====== --}}
+{{-- ════ MAIN ════ --}}
 <main class="admin-main">
 
-    {{-- Messages flash --}}
     @if(session('success'))
         <div class="alert alert-success alert-elyon alert-dismissible fade show mb-3" role="alert">
             <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
@@ -333,65 +295,43 @@
         </div>
     @endif
 
-    {{-- ══ PANEL 1 — TABLEAU DE BORD ══ --}}
+    {{-- PANEL 1 — TABLEAU DE BORD --}}
     <section class="admin-panel active" id="panel-dashboard">
         <div class="section-heading" data-aos="fade-down">
             <div class="heading-icon"><i class="bi bi-grid-1x2"></i></div>
             <h2>Vue d'ensemble</h2>
         </div>
-
         <div class="row g-3 mb-4">
-            <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="0">
-                <div class="stat-card">
-                    <div class="stat-icon blue"><i class="bi bi-folder2-open"></i></div>
-                    <div><div class="stat-value">{{ $stats['total_dossiers'] ?? 0 }}</div><div class="stat-label">Dossiers total</div></div>
-                </div>
-            </div>
-            <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="60">
-                <div class="stat-card">
-                    <div class="stat-icon gold"><i class="bi bi-hourglass-split"></i></div>
-                    <div><div class="stat-value">{{ $stats['dossiers_attente'] ?? 0 }}</div><div class="stat-label">En attente</div></div>
-                </div>
-            </div>
-            <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="120">
-                <div class="stat-card">
-                    <div class="stat-icon cyan"><i class="bi bi-arrow-repeat"></i></div>
-                    <div><div class="stat-value">{{ $stats['dossiers_cours'] ?? 0 }}</div><div class="stat-label">En cours</div></div>
-                </div>
-            </div>
-            <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="180">
-                <div class="stat-card">
-                    <div class="stat-icon green"><i class="bi bi-check-circle"></i></div>
-                    <div><div class="stat-value">{{ $stats['dossiers_valides'] ?? 0 }}</div><div class="stat-label">Validés</div></div>
-                </div>
-            </div>
-            <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="240">
-                <div class="stat-card">
-                    <div class="stat-icon red"><i class="bi bi-x-circle"></i></div>
-                    <div><div class="stat-value">{{ $stats['dossiers_refuses'] ?? 0 }}</div><div class="stat-label">Refusés</div></div>
-                </div>
-            </div>
-            <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="300">
-                <div class="stat-card">
-                    <div class="stat-icon purple"><i class="bi bi-people"></i></div>
-                    <div><div class="stat-value">{{ $stats['total_users'] ?? 0 }}</div><div class="stat-label">Clients</div></div>
-                </div>
-            </div>
+            <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="0"><div class="stat-card"><div class="stat-icon blue"><i class="bi bi-folder2-open"></i></div><div><div class="stat-value">{{ $stats['total_dossiers']??0 }}</div><div class="stat-label">Total dossiers</div></div></div></div>
+            <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="60"><div class="stat-card"><div class="stat-icon gold"><i class="bi bi-hourglass-split"></i></div><div><div class="stat-value">{{ $stats['dossiers_attente']??0 }}</div><div class="stat-label">En attente</div></div></div></div>
+            <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="120"><div class="stat-card"><div class="stat-icon cyan"><i class="bi bi-arrow-repeat"></i></div><div><div class="stat-value">{{ $stats['dossiers_cours']??0 }}</div><div class="stat-label">En cours</div></div></div></div>
+            <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="180"><div class="stat-card"><div class="stat-icon green"><i class="bi bi-check-circle"></i></div><div><div class="stat-value">{{ $stats['dossiers_valides']??0 }}</div><div class="stat-label">Validés</div></div></div></div>
+            <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="240"><div class="stat-card"><div class="stat-icon red"><i class="bi bi-x-circle"></i></div><div><div class="stat-value">{{ $stats['dossiers_refuses']??0 }}</div><div class="stat-label">Refusés</div></div></div></div>
+            <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="300"><div class="stat-card"><div class="stat-icon purple"><i class="bi bi-people"></i></div><div><div class="stat-value">{{ $stats['total_users']??0 }}</div><div class="stat-label">Clients</div></div></div></div>
         </div>
-
         <div class="row g-3">
             <div class="col-lg-8" data-aos="fade-up">
                 <div class="panel-card">
                     <div class="panel-card-header">
                         <i class="bi bi-clock-history text-primary me-1"></i>
                         <span class="panel-card-title">Derniers dossiers créés</span>
-                        <button class="btn-ghost ms-auto" onclick="showPanel('dossiers', null)">Voir tout <i class="bi bi-arrow-right"></i></button>
+                        <button class="btn-ghost ms-auto" onclick="showPanel('dossiers',null)">Voir tout <i class="bi bi-arrow-right"></i></button>
                     </div>
                     <div class="scrollable-table">
                         <table class="admin-table">
                             <thead><tr><th>#ID</th><th>Client</th><th>Service</th><th>Statut</th><th>Date</th></tr></thead>
                             <tbody>
-                                <tr><td colspan="5"><div class="empty-state"><i class="bi bi-inbox"></i><p>Aucun dossier pour le moment.</p></div></td></tr>
+                                @forelse($dossiers->take(5) as $d)
+                                    <tr>
+                                        <td><span class="tag-pill">{{ $d->id }}</span></td>
+                                        <td style="font-weight:500;">{{ $d->user->name??'—' }}</td>
+                                        <td>{{ $d->service->nom??'—' }}</td>
+                                        <td><span class="badge-status badge-{{ $d->statut }}">{{ ucfirst(str_replace('_',' ',$d->statut)) }}</span></td>
+                                        <td style="color:var(--muted);font-size:.78rem;">{{ $d->created_at->format('d/m/Y') }}</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="5"><div class="empty-state"><i class="bi bi-inbox"></i><p>Aucun dossier.</p></div></td></tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -399,18 +339,12 @@
             </div>
             <div class="col-lg-4" data-aos="fade-up">
                 <div class="panel-card h-100">
-                    <div class="panel-card-header">
-                        <i class="bi bi-person-plus text-primary me-1"></i>
-                        <span class="panel-card-title">Derniers clients inscrits</span>
-                    </div>
+                    <div class="panel-card-header"><i class="bi bi-person-plus text-primary me-1"></i><span class="panel-card-title">Derniers clients</span></div>
                     <div class="panel-card-body" style="padding:.75rem;">
                         @forelse($users->where('role','client')->sortByDesc('created_at')->take(5) as $u)
                             <div class="user-card mb-2">
                                 <div class="user-avatar">{{ strtoupper(substr($u->name,0,1)) }}</div>
-                                <div class="user-info">
-                                    <div class="user-name">{{ $u->name }}</div>
-                                    <div class="user-email">{{ $u->email }}</div>
-                                </div>
+                                <div class="user-info"><div class="user-name">{{ $u->name }}</div><div class="user-email">{{ $u->email }}</div></div>
                                 <div class="ms-auto" style="font-size:.72rem;color:var(--muted);">{{ $u->created_at->diffForHumans() }}</div>
                             </div>
                         @empty
@@ -422,7 +356,7 @@
         </div>
     </section>
 
-    {{-- ══ PANEL 2 — TOUS LES DOSSIERS ══ --}}
+    {{-- PANEL 2 — TOUS LES DOSSIERS --}}
     <section class="admin-panel" id="panel-dossiers">
         <div class="section-heading" data-aos="fade-down">
             <div class="heading-icon"><i class="bi bi-folder2-open"></i></div>
@@ -438,44 +372,63 @@
             </select>
             <select id="filterService" onchange="filterDossiers()">
                 <option value="">Tous les services</option>
-                @foreach($services ?? [] as $s)
-                    <option value="{{ $s->id }}">{{ $s->nom }}</option>
-                @endforeach
+                @foreach($services as $s)<option value="{{ $s->id }}">{{ $s->nom }}</option>@endforeach
             </select>
             <input type="text" id="filterSearch" onkeyup="filterDossiers()" placeholder="🔍 Rechercher client...">
         </div>
         <div class="panel-card" data-aos="fade-up">
             <div class="scrollable-table">
                 <table class="admin-table" id="tableDossiers">
-                    <thead>
-                        <tr><th>#ID</th><th>Client</th><th>Service</th><th>Statut</th><th>Créé le</th><th>Actions</th></tr>
-                    </thead>
+                    <thead><tr><th>#ID</th><th>Client</th><th>Service</th><th>Documents</th><th>Messages</th><th>Statut</th><th>Créé le</th><th>Actions</th></tr></thead>
                     <tbody>
-                        <tr><td colspan="6"><div class="empty-state"><i class="bi bi-folder-x"></i><p>Aucun dossier enregistré.</p></div></td></tr>
+                        @forelse($dossiers as $d)
+                            <tr data-statut="{{ $d->statut }}" data-service="{{ $d->service_id }}" data-client="{{ strtolower($d->user->name??'') }}">
+                                <td><span class="tag-pill">{{ $d->id }}</span></td>
+                                <td><div style="font-weight:600;font-size:.84rem;">{{ $d->user->name??'—' }}</div><div style="font-size:.72rem;color:var(--muted);">{{ $d->user->email??'' }}</div></td>
+                                <td><div style="font-weight:500;">{{ $d->service->nom??'—' }}</div><div style="font-size:.72rem;color:var(--muted);">{{ $d->service->pays??'' }}</div></td>
+                                <td>
+                                    <button class="btn-view-sm" data-bs-toggle="modal" data-bs-target="#modalGererDossier"
+                                        data-id="{{ $d->id }}" data-client="{{ $d->user->name??'—' }}"
+                                        data-service="{{ $d->service->nom??'—' }}" data-statut="{{ $d->statut }}" data-tab="documents">
+                                        <i class="bi bi-file-earmark-arrow-up"></i> {{ $d->documents->count() }} doc(s)
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn-view-sm" data-bs-toggle="modal" data-bs-target="#modalGererDossier"
+                                        data-id="{{ $d->id }}" data-client="{{ $d->user->name??'—' }}"
+                                        data-service="{{ $d->service->nom??'—' }}" data-statut="{{ $d->statut }}" data-tab="messages">
+                                        <i class="bi bi-chat-dots"></i> {{ $d->messages->count() }} msg(s)
+                                    </button>
+                                </td>
+                                <td><span class="badge-status badge-{{ $d->statut }}">{{ ucfirst(str_replace('_',' ',$d->statut)) }}</span></td>
+                                <td style="color:var(--muted);font-size:.78rem;">{{ $d->created_at->format('d/m/Y') }}</td>
+                                <td>
+                                    <button class="btn-edit-sm" data-bs-toggle="modal" data-bs-target="#modalGererDossier"
+                                        data-id="{{ $d->id }}" data-client="{{ $d->user->name??'—' }}"
+                                        data-service="{{ $d->service->nom??'—' }}" data-statut="{{ $d->statut }}" data-tab="statut">
+                                        <i class="bi bi-gear"></i> Gérer
+                                    </button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="8"><div class="empty-state"><i class="bi bi-folder-x"></i><p>Aucun dossier enregistré.</p></div></td></tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
     </section>
 
-    {{-- ══ PANEL 3 — NOUVEAUX UTILISATEURS ══ --}}
+    {{-- PANEL 3 — NOUVEAUX CLIENTS --}}
     <section class="admin-panel" id="panel-utilisateurs-recents">
-        <div class="section-heading" data-aos="fade-down">
-            <div class="heading-icon"><i class="bi bi-person-plus"></i></div>
-            <h2>Nouveaux clients</h2>
-        </div>
+        <div class="section-heading" data-aos="fade-down"><div class="heading-icon"><i class="bi bi-person-plus"></i></div><h2>Nouveaux clients</h2></div>
         <div class="row g-3" data-aos="fade-up">
             @forelse($users->where('role','client')->sortByDesc('created_at') as $u)
                 <div class="col-md-6 col-xl-4">
                     <div class="user-card">
                         <div class="user-avatar">{{ strtoupper(substr($u->name,0,1)) }}</div>
-                        <div class="user-info">
-                            <div class="user-name">{{ $u->name }}</div>
-                            <div class="user-email">{{ $u->email }}</div>
-                        </div>
-                        <div class="ms-auto" style="text-align:right;">
-                            <div style="font-size:.72rem;color:var(--muted);">{{ $u->created_at->format('d/m/Y') }}</div>
-                        </div>
+                        <div class="user-info"><div class="user-name">{{ $u->name }}</div><div class="user-email">{{ $u->email }}</div></div>
+                        <div class="ms-auto" style="font-size:.72rem;color:var(--muted);">{{ $u->created_at->format('d/m/Y') }}</div>
                     </div>
                 </div>
             @empty
@@ -484,40 +437,23 @@
         </div>
     </section>
 
-    {{-- ══ PANEL 4 — SERVICES ══ --}}
+    {{-- PANEL 4 — SERVICES --}}
     <section class="admin-panel" id="panel-services">
-        <div class="section-heading" data-aos="fade-down">
-            <div class="heading-icon"><i class="bi bi-briefcase"></i></div>
-            <h2>Services</h2>
-            <div class="ms-auto">
-                <button class="btn-accent-elyon" data-bs-toggle="modal" data-bs-target="#modalAddService">
-                    <i class="bi bi-plus-lg"></i> Nouveau service
-                </button>
-            </div>
-        </div>
+        <div class="section-heading" data-aos="fade-down"><div class="heading-icon"><i class="bi bi-briefcase"></i></div><h2>Services</h2><div class="ms-auto"><button class="btn-accent-elyon" data-bs-toggle="modal" data-bs-target="#modalAddService"><i class="bi bi-plus-lg"></i> Nouveau service</button></div></div>
         <div class="panel-card" data-aos="fade-up">
             <div class="scrollable-table">
                 <table class="admin-table">
                     <thead><tr><th>#</th><th>Nom</th><th>Pays</th><th>Description</th><th>Actions</th></tr></thead>
                     <tbody>
-                        @forelse($services ?? [] as $s)
+                        @forelse($services as $s)
                             <tr>
                                 <td><span class="tag-pill">{{ $s->id }}</span></td>
                                 <td style="font-weight:600;">{{ $s->nom }}</td>
-                                <td>{{ $s->pays ?? '—' }}</td>
-                                <td style="font-size:.78rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $s->description ?? '—' }}</td>
+                                <td>{{ $s->pays??'—' }}</td>
+                                <td style="font-size:.78rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $s->description??'—' }}</td>
                                 <td>
-                                    <button class="btn-edit-sm me-1"
-                                        data-bs-toggle="modal" data-bs-target="#modalEditService"
-                                        data-id="{{ $s->id }}" data-nom="{{ $s->nom }}"
-                                        data-pays="{{ $s->pays }}" data-description="{{ $s->description }}">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <form method="POST" action="{{ route('admin.services.destroy', $s->id) }}" class="inline-form"
-                                        onsubmit="return confirm('Supprimer le service « {{ $s->nom }} » ?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i></button>
-                                    </form>
+                                    <button class="btn-edit-sm me-1" data-bs-toggle="modal" data-bs-target="#modalEditService" data-id="{{ $s->id }}" data-nom="{{ $s->nom }}" data-pays="{{ $s->pays }}" data-description="{{ $s->description }}"><i class="bi bi-pencil"></i></button>
+                                    <form method="POST" action="{{ route('admin.services.destroy',$s->id) }}" class="inline-form" onsubmit="return confirm('Supprimer ?')">@csrf @method('DELETE')<button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i></button></form>
                                 </td>
                             </tr>
                         @empty
@@ -529,47 +465,23 @@
         </div>
     </section>
 
-    {{-- ══ PANEL 5 — DOCUMENTS REQUIS ══ --}}
+    {{-- PANEL 5 — DOCUMENTS REQUIS --}}
     <section class="admin-panel" id="panel-documents">
-        <div class="section-heading" data-aos="fade-down">
-            <div class="heading-icon"><i class="bi bi-file-earmark-text"></i></div>
-            <h2>Documents requis</h2>
-            <div class="ms-auto">
-                <button class="btn-accent-elyon" data-bs-toggle="modal" data-bs-target="#modalAddDocument">
-                    <i class="bi bi-plus-lg"></i> Ajouter
-                </button>
-            </div>
-        </div>
+        <div class="section-heading" data-aos="fade-down"><div class="heading-icon"><i class="bi bi-file-earmark-text"></i></div><h2>Documents requis</h2><div class="ms-auto"><button class="btn-accent-elyon" data-bs-toggle="modal" data-bs-target="#modalAddDocument"><i class="bi bi-plus-lg"></i> Ajouter</button></div></div>
         <div class="panel-card" data-aos="fade-up">
             <div class="scrollable-table">
                 <table class="admin-table">
                     <thead><tr><th>#</th><th>Nom</th><th>Service</th><th>Obligatoire</th><th>Actions</th></tr></thead>
                     <tbody>
-                        @forelse($documents ?? [] as $doc)
+                        @forelse($documents as $doc)
                             <tr>
                                 <td><span class="tag-pill">{{ $doc->id }}</span></td>
                                 <td style="font-weight:500;">{{ $doc->nom }}</td>
-                                <td>{{ $doc->service->nom ?? '—' }}</td>
+                                <td>{{ $doc->service->nom??'—' }}</td>
+                                <td>@if($doc->obligatoire)<span class="badge-status badge-valide">Obligatoire</span>@else<span class="badge-status badge-en_attente">Facultatif</span>@endif</td>
                                 <td>
-                                    @if($doc->obligatoire)
-                                        <span class="badge-status badge-valide">Obligatoire</span>
-                                    @else
-                                        <span class="badge-status badge-en_attente">Facultatif</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <button class="btn-edit-sm me-1"
-                                        data-bs-toggle="modal" data-bs-target="#modalEditDocument"
-                                        data-id="{{ $doc->id }}" data-nom="{{ $doc->nom }}"
-                                        data-service="{{ $doc->service_id }}"
-                                        data-obligatoire="{{ $doc->obligatoire ? '1' : '0' }}">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <form method="POST" action="{{ route('admin.documents.destroy', $doc->id) }}" class="inline-form"
-                                        onsubmit="return confirm('Supprimer ce document ?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i></button>
-                                    </form>
+                                    <button class="btn-edit-sm me-1" data-bs-toggle="modal" data-bs-target="#modalEditDocument" data-id="{{ $doc->id }}" data-nom="{{ $doc->nom }}" data-service="{{ $doc->service_id }}" data-obligatoire="{{ $doc->obligatoire?'1':'0' }}"><i class="bi bi-pencil"></i></button>
+                                    <form method="POST" action="{{ route('admin.documents.destroy',$doc->id) }}" class="inline-form" onsubmit="return confirm('Supprimer ?')">@csrf @method('DELETE')<button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i></button></form>
                                 </td>
                             </tr>
                         @empty
@@ -581,44 +493,27 @@
         </div>
     </section>
 
-    {{-- ══ PANEL 6 — ÉTAPES ══ --}}
+    {{-- PANEL 6 — ÉTAPES --}}
     <section class="admin-panel" id="panel-etapes">
-        <div class="section-heading" data-aos="fade-down">
-            <div class="heading-icon"><i class="bi bi-list-check"></i></div>
-            <h2>Étapes de traitement</h2>
-            <div class="ms-auto">
-                <button class="btn-accent-elyon" data-bs-toggle="modal" data-bs-target="#modalAddEtape">
-                    <i class="bi bi-plus-lg"></i> Ajouter
-                </button>
-            </div>
-        </div>
+        <div class="section-heading" data-aos="fade-down"><div class="heading-icon"><i class="bi bi-list-check"></i></div><h2>Étapes de traitement</h2><div class="ms-auto"><button class="btn-accent-elyon" data-bs-toggle="modal" data-bs-target="#modalAddEtape"><i class="bi bi-plus-lg"></i> Ajouter</button></div></div>
         <div class="panel-card" data-aos="fade-up">
             <div class="scrollable-table">
                 <table class="admin-table">
                     <thead><tr><th>#</th><th>Titre</th><th>Service</th><th>Ordre</th><th>Actions</th></tr></thead>
                     <tbody>
-                        @forelse($etapes ?? [] as $e)
+                        @forelse($etapes as $e)
                             <tr>
                                 <td><span class="tag-pill">{{ $e->id }}</span></td>
                                 <td style="font-weight:500;">{{ $e->nom }}</td>
-                                <td>{{ $e->service->nom ?? '—' }}</td>
+                                <td>{{ $e->service->nom??'—' }}</td>
                                 <td><span class="tag-pill" style="background:var(--primary-xlight);color:var(--primary);border:none;">{{ $e->ordre }}</span></td>
                                 <td>
-                                    <button class="btn-edit-sm me-1"
-                                        data-bs-toggle="modal" data-bs-target="#modalEditEtape"
-                                        data-id="{{ $e->id }}" data-nom="{{ $e->nom }}"
-                                        data-service="{{ $e->service_id }}" data-ordre="{{ $e->ordre }}">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <form method="POST" action="{{ route('admin.etapes.destroy', $e->id) }}" class="inline-form"
-                                        onsubmit="return confirm('Supprimer cette étape ?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i></button>
-                                    </form>
+                                    <button class="btn-edit-sm me-1" data-bs-toggle="modal" data-bs-target="#modalEditEtape" data-id="{{ $e->id }}" data-nom="{{ $e->nom }}" data-service="{{ $e->service_id }}" data-ordre="{{ $e->ordre }}"><i class="bi bi-pencil"></i></button>
+                                    <form method="POST" action="{{ route('admin.etapes.destroy',$e->id) }}" class="inline-form" onsubmit="return confirm('Supprimer ?')">@csrf @method('DELETE')<button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i></button></form>
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="5"><div class="empty-state"><i class="bi bi-list-check"></i><p>Aucune étape configurée.</p></div></td></tr>
+                            <tr><td colspan="5"><div class="empty-state"><i class="bi bi-list-check"></i><p>Aucune étape.</p></div></td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -626,43 +521,25 @@
         </div>
     </section>
 
-    {{-- ══ PANEL 7 — INFOS VISA ══ --}}
+    {{-- PANEL 7 — INFOS VISA --}}
     <section class="admin-panel" id="panel-infos-visa">
-        <div class="section-heading" data-aos="fade-down">
-            <div class="heading-icon"><i class="bi bi-passport"></i></div>
-            <h2>Informations Visa</h2>
-            <div class="ms-auto">
-                <button class="btn-accent-elyon" data-bs-toggle="modal" data-bs-target="#modalAddInfosVisa">
-                    <i class="bi bi-plus-lg"></i> Ajouter
-                </button>
-            </div>
-        </div>
+        <div class="section-heading" data-aos="fade-down"><div class="heading-icon"><i class="bi bi-passport"></i></div><h2>Informations Visa</h2><div class="ms-auto"><button class="btn-accent-elyon" data-bs-toggle="modal" data-bs-target="#modalAddInfosVisa"><i class="bi bi-plus-lg"></i> Ajouter</button></div></div>
         <div class="panel-card" data-aos="fade-up">
             <div class="scrollable-table">
                 <table class="admin-table">
                     <thead><tr><th>#</th><th>Service</th><th>Délai</th><th>Frais</th><th>Ambassade</th><th>Notes</th><th>Actions</th></tr></thead>
                     <tbody>
-                        @forelse($infosVisa ?? [] as $v)
+                        @forelse($infosVisa as $v)
                             <tr>
                                 <td><span class="tag-pill">{{ $v->id }}</span></td>
-                                <td>{{ $v->service->nom ?? '—' }}</td>
-                                <td>{{ $v->delai ?? '—' }}</td>
-                                <td style="font-weight:600;color:var(--primary);">{{ $v->frais ?? '—' }}</td>
-                                <td>{{ $v->ambassade ?? '—' }}</td>
-                                <td style="font-size:.78rem;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $v->notes ?? '—' }}</td>
+                                <td>{{ $v->service->nom??'—' }}</td>
+                                <td>{{ $v->delai??'—' }}</td>
+                                <td style="font-weight:600;color:var(--primary);">{{ $v->frais??'—' }}</td>
+                                <td>{{ $v->ambassade??'—' }}</td>
+                                <td style="font-size:.78rem;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $v->notes??'—' }}</td>
                                 <td>
-                                    <button class="btn-edit-sm me-1"
-                                        data-bs-toggle="modal" data-bs-target="#modalEditInfosVisa"
-                                        data-id="{{ $v->id }}" data-service="{{ $v->service_id }}"
-                                        data-delai="{{ $v->delai }}" data-frais="{{ $v->frais }}"
-                                        data-ambassade="{{ $v->ambassade }}" data-notes="{{ $v->notes }}">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <form method="POST" action="{{ route('admin.infosVisa.destroy', $v->id) }}" class="inline-form"
-                                        onsubmit="return confirm('Supprimer ces infos visa ?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i></button>
-                                    </form>
+                                    <button class="btn-edit-sm me-1" data-bs-toggle="modal" data-bs-target="#modalEditInfosVisa" data-id="{{ $v->id }}" data-service="{{ $v->service_id }}" data-delai="{{ $v->delai }}" data-frais="{{ $v->frais }}" data-ambassade="{{ $v->ambassade }}" data-notes="{{ $v->notes }}"><i class="bi bi-pencil"></i></button>
+                                    <form method="POST" action="{{ route('admin.infosVisa.destroy',$v->id) }}" class="inline-form" onsubmit="return confirm('Supprimer ?')">@csrf @method('DELETE')<button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i></button></form>
                                 </td>
                             </tr>
                         @empty
@@ -674,61 +551,27 @@
         </div>
     </section>
 
-    {{-- ══ PANEL 8 — UTILISATEURS ══ --}}
+    {{-- PANEL 8 — UTILISATEURS --}}
     <section class="admin-panel" id="panel-utilisateurs">
-        <div class="section-heading" data-aos="fade-down">
-            <div class="heading-icon"><i class="bi bi-people"></i></div>
-            <h2>Gestion des utilisateurs</h2>
-        </div>
+        <div class="section-heading" data-aos="fade-down"><div class="heading-icon"><i class="bi bi-people"></i></div><h2>Gestion des utilisateurs</h2></div>
         <div class="panel-card" data-aos="fade-up">
             <div class="scrollable-table">
                 <table class="admin-table">
-                    <thead>
-                        <tr><th>#</th><th>Nom</th><th>Email</th><th>Téléphone</th><th>Rôle</th><th>Statut</th><th>Inscrit le</th><th>Actions</th></tr>
-                    </thead>
+                    <thead><tr><th>#</th><th>Nom</th><th>Email</th><th>Téléphone</th><th>Rôle</th><th>Statut</th><th>Inscrit le</th><th>Actions</th></tr></thead>
                     <tbody>
-                        @forelse($users ?? [] as $u)
+                        @forelse($users as $u)
                             <tr>
                                 <td><span class="tag-pill">{{ $u->id }}</span></td>
-                                <td>
-                                    <div style="display:flex;align-items:center;gap:.6rem;">
-                                        <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:700;flex-shrink:0;">
-                                            {{ strtoupper(substr($u->name,0,1)) }}
-                                        </div>
-                                        <span style="font-weight:500;font-size:.84rem;">{{ $u->name }}</span>
-                                    </div>
-                                </td>
+                                <td><div style="display:flex;align-items:center;gap:.6rem;"><div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($u->name,0,1)) }}</div><span style="font-weight:500;font-size:.84rem;">{{ $u->name }}</span></div></td>
                                 <td style="font-size:.82rem;color:var(--muted);">{{ $u->email }}</td>
-                                <td style="font-size:.82rem;color:var(--muted);">{{ $u->telephone ?? '—' }}</td>
-                                <td>
-                                    @if($u->role === 'admin')
-                                        <span class="badge-status badge-en_cours">Admin</span>
-                                    @else
-                                        <span class="badge-status badge-en_attente">Client</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($u->actif)
-                                        <span class="badge-status badge-valide">Actif</span>
-                                    @else
-                                        <span class="badge-status badge-refuse">Suspendu</span>
-                                    @endif
-                                </td>
+                                <td style="font-size:.82rem;color:var(--muted);">{{ $u->telephone??'—' }}</td>
+                                <td>@if($u->role==='admin')<span class="badge-status badge-en_cours">Admin</span>@else<span class="badge-status badge-en_attente">Client</span>@endif</td>
+                                <td>@if($u->actif)<span class="badge-status badge-valide">Actif</span>@else<span class="badge-status badge-refuse">Suspendu</span>@endif</td>
                                 <td style="color:var(--muted);font-size:.78rem;">{{ $u->created_at->format('d/m/Y') }}</td>
                                 <td>
-                                    @if($u->role !== 'admin')
-                                        <form method="POST" action="{{ route('admin.users.toggleActif', $u->id) }}" class="inline-form">
-                                            @csrf @method('PATCH')
-                                            <button type="submit" class="{{ $u->actif ? 'btn-danger-sm' : 'btn-success-sm' }} me-1">
-                                                <i class="bi bi-{{ $u->actif ? 'pause-circle' : 'play-circle' }}"></i>
-                                                {{ $u->actif ? 'Désactiver' : 'Activer' }}
-                                            </button>
-                                        </form>
-                                        <form method="POST" action="{{ route('admin.users.destroy', $u->id) }}" class="inline-form"
-                                            onsubmit="return confirm('Supprimer cet utilisateur ?')">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i></button>
-                                        </form>
+                                    @if($u->role!=='admin')
+                                        <form method="POST" action="{{ route('admin.users.toggleActif',$u->id) }}" class="inline-form">@csrf @method('PATCH')<button type="submit" class="{{ $u->actif?'btn-danger-sm':'btn-success-sm' }} me-1"><i class="bi bi-{{ $u->actif?'pause-circle':'play-circle' }}"></i> {{ $u->actif?'Désactiver':'Activer' }}</button></form>
+                                        <form method="POST" action="{{ route('admin.users.destroy',$u->id) }}" class="inline-form" onsubmit="return confirm('Supprimer ?')">@csrf @method('DELETE')<button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i></button></form>
                                     @else
                                         <span style="font-size:.72rem;color:var(--muted);">—</span>
                                     @endif
@@ -745,523 +588,495 @@
 
 </main>
 
-{{-- ══════════════ MODALS ══════════════ --}}
+{{-- ════════════════════════════════════════════════
+     MODALS
+════════════════════════════════════════════════ --}}
 
-{{-- ══ MODAL PROFIL ADMIN ══ --}}
-<div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
-        <div class="modal-content border-0 shadow-lg" style="border-radius:24px;overflow:hidden;">
-            <div class="modal-body p-0">
+{{-- MODAL GÉRER DOSSIER — Statut + Documents + Messages --}}
+<div class="modal fade" id="modalGererDossier" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-folder2-open me-2"></i>
+                    Dossier <span id="modalDossierTitle"></span> —
+                    <span id="modalDossierClientHeader" style="color:var(--accent-light);"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
 
-                {{-- En-tête avec avatar --}}
-                <div class="text-center py-4 px-4" style="background:linear-gradient(135deg,#0f172a,#1e3a5f);">
-                    <div class="position-relative d-inline-block mb-3">
-                        {{-- Avatar actuel --}}
-                        <img src="{{ auth()->user()->avatar
-                            ? asset('storage/' . auth()->user()->avatar)
-                            : asset('images/avatar.png') }}"
-                            class="rounded-circle border border-3 border-white"
-                            style="width:90px;height:90px;object-fit:cover;"
-                            alt="Avatar" id="avatarPreview">
-
-                        {{-- Bouton caméra pour changer l'avatar --}}
-                        <form action="{{ route('admin.avatar.update') }}"
-                              method="POST"
-                              enctype="multipart/form-data"
-                              id="avatarForm">
-                            @csrf
-                            <label title="Changer la photo"
-                                   style="position:absolute;bottom:2px;right:2px;width:28px;height:28px;
-                                          border-radius:50%;background:#3b82f6;color:#fff;
-                                          display:flex;align-items:center;justify-content:center;
-                                          cursor:pointer;border:2px solid #fff;font-size:12px;">
-                                <i class="bi bi-camera-fill"></i>
-                                <input type="file" name="avatar" id="avatarInput" hidden
-                                       accept="image/jpeg,image/png,image/jpg,image/webp"
-                                       onchange="previewAvatar(this)">
-                            </label>
-                        </form>
+                {{-- Résumé --}}
+                <div class="d-flex flex-wrap gap-3 mb-4 p-3 rounded-3" style="background:#f8fafc;border:1px solid var(--border);">
+                    <div>
+                        <div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;font-weight:700;margin-bottom:.2rem;">Client</div>
+                        <div style="font-weight:600;font-size:.9rem;" id="modalDossierClient"></div>
                     </div>
-                    <div class="text-white fw-bold" style="font-size:1rem;">{{ auth()->user()->name }}</div>
-                    <div style="color:rgba(255,255,255,0.55);font-size:0.85rem;">{{ auth()->user()->email }}</div>
-                    <span class="badge mt-2" style="background:rgba(59,130,246,0.25);color:#93c5fd;font-size:0.75rem;padding:4px 12px;border-radius:999px;border:1px solid rgba(59,130,246,0.3);">
-                        Administrateur
-                    </span>
+                    <div>
+                        <div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;font-weight:700;margin-bottom:.2rem;">Service</div>
+                        <div style="font-weight:600;font-size:.9rem;" id="modalDossierService"></div>
+                    </div>
+                    <div>
+                        <div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;font-weight:700;margin-bottom:.2rem;">Statut actuel</div>
+                        <div id="modalDossierStatutBadge"></div>
+                    </div>
                 </div>
 
                 {{-- Onglets --}}
-                <div class="px-4 pt-3 pb-1" style="background:#fff;border-bottom:1px solid #e5e7eb;">
-                    <ul class="nav nav-pills gap-2" role="tablist">
-                        <li class="nav-item">
-                            <button class="nav-link active" data-bs-toggle="pill"
-                                    data-bs-target="#pane-profil-admin" type="button"
-                                    style="font-size:0.85rem;border-radius:8px;padding:6px 14px;">
-                                <i class="bi bi-person me-1"></i> Mon profil
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link" id="tab-mdp-admin"
-                                    data-bs-toggle="pill" data-bs-target="#pane-mdp-admin"
-                                    type="button"
-                                    style="font-size:0.85rem;border-radius:8px;padding:6px 14px;">
-                                <i class="bi bi-lock me-1"></i> Mot de passe
-                            </button>
-                        </li>
-                    </ul>
-                </div>
+                <ul class="nav nav-pills gap-2 mb-3" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="tab-statut-btn" data-bs-toggle="pill"
+                                data-bs-target="#pane-statut-admin" type="button"
+                                style="font-size:.85rem;border-radius:8px;padding:6px 14px;">
+                            <i class="bi bi-gear me-1"></i> Statut
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="tab-docs-btn" data-bs-toggle="pill"
+                                data-bs-target="#pane-docs-admin" type="button"
+                                style="font-size:.85rem;border-radius:8px;padding:6px 14px;">
+                            <i class="bi bi-file-earmark-arrow-up me-1"></i>
+                            Documents <span class="badge bg-secondary ms-1" id="docsCount" style="font-size:.65rem;">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="tab-msgs-btn" data-bs-toggle="pill"
+                                data-bs-target="#pane-msgs-admin" type="button"
+                                style="font-size:.85rem;border-radius:8px;padding:6px 14px;">
+                            <i class="bi bi-chat-dots me-1"></i>
+                            Messages <span class="badge bg-secondary ms-1" id="msgsCount" style="font-size:.65rem;">0</span>
+                        </button>
+                    </li>
+                </ul>
 
-                {{-- Contenu onglets --}}
-                <div class="tab-content px-4 pb-4 pt-3" style="background:#fff;">
+                <div class="tab-content">
 
-                    {{-- ── Onglet Profil ── --}}
-                    <div class="tab-pane fade show active" id="pane-profil-admin" role="tabpanel">
-
-                        {{-- Message succès --}}
-                        @if(session('password_success'))
-                            <div class="alert alert-success py-2 mb-3" style="font-size:0.82rem;border-radius:10px;">
-                                <i class="bi bi-check-circle me-1"></i> {{ session('password_success') }}
-                            </div>
-                        @endif
-
-                        {{-- Bouton sauvegarder avatar (apparaît après sélection image) --}}
-                        <div id="avatarSaveBtn" class="d-none mb-3">
-                            <button type="button" onclick="document.getElementById('avatarForm').submit();"
-                                    class="btn btn-primary w-100"
-                                    style="border-radius:10px;font-size:0.88rem;">
-                                <i class="bi bi-floppy me-1"></i> Sauvegarder la photo
-                            </button>
-                        </div>
-
-                        {{-- Formulaire modifier infos profil --}}
-                        <form action="{{ route('admin.profile.update') }}" method="POST">
+                    {{-- ONGLET 1 : STATUT --}}
+                    <div class="tab-pane fade show active" id="pane-statut-admin" role="tabpanel">
+                        <form method="POST" id="formStatutDossier" action="">
                             @csrf
                             <div class="mb-3">
-                                <label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.4rem;">Nom complet</label>
-                                <input type="text" name="name"
-                                       value="{{ old('name', auth()->user()->name) }}"
-                                       class="form-control @error('name') is-invalid @enderror"
-                                       style="border-radius:10px;font-size:0.9rem;" required>
-                                @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                <label class="form-label-elyon">Nouveau statut *</label>
+                                <select name="statut" id="selectStatutDossier" class="form-control-elyon" required>
+                                    <option value="en_attente">⏳ En attente</option>
+                                    <option value="en_cours">🔄 En cours</option>
+                                    <option value="valide">✅ Validé</option>
+                                    <option value="refuse">❌ Refusé</option>
+                                </select>
                             </div>
-                            <div class="mb-3">
-                                <label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.4rem;">Adresse email</label>
-                                <input type="email" name="email"
-                                       value="{{ old('email', auth()->user()->email) }}"
-                                       class="form-control @error('email') is-invalid @enderror"
-                                       style="border-radius:10px;font-size:0.9rem;" required>
-                                @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                            <div class="mb-3">
-                                <label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.4rem;">
-                                    Téléphone <span style="color:#9ca3af;font-size:0.75rem;">(optionnel)</span>
-                                </label>
-                                <input type="text" name="telephone"
-                                       value="{{ old('telephone', auth()->user()->telephone) }}"
-                                       class="form-control"
-                                       style="border-radius:10px;font-size:0.9rem;"
-                                       placeholder="+242 06 000 00 00">
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100"
-                                    style="border-radius:10px;font-size:0.9rem;padding:0.65rem;">
-                                <i class="bi bi-floppy me-1"></i> Enregistrer les modifications
+                            <button type="submit" class="btn-primary-elyon">
+                                <i class="bi bi-check-lg me-1"></i> Mettre à jour le statut
                             </button>
                         </form>
                     </div>
 
-                    {{-- ── Onglet Mot de passe ── --}}
-                    <div class="tab-pane fade" id="pane-mdp-admin" role="tabpanel">
-
-                        <div class="alert mb-3 py-2" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;font-size:.82rem;color:#1e40af;">
-                            <i class="bi bi-info-circle me-1"></i> Minimum <strong>8 caractères</strong>.
+                    {{-- ONGLET 2 : DOCUMENTS UPLOADÉS PAR LE CLIENT --}}
+                    <div class="tab-pane fade" id="pane-docs-admin" role="tabpanel">
+                        <div id="docsList">
+                            <div class="doc-empty">
+                                <i class="bi bi-file-earmark-x"></i>
+                                Aucun document uploadé par le client.
+                            </div>
                         </div>
+                    </div>
 
-                        @error('current_password')
-                            <div class="alert alert-danger py-2 mb-3" style="font-size:0.82rem;border-radius:10px;">
-                                <i class="bi bi-x-circle me-1"></i> {{ $message }}
+                    {{-- ONGLET 3 : MESSAGES + RÉPONSE ADMIN --}}
+                    <div class="tab-pane fade" id="pane-msgs-admin" role="tabpanel">
+                        {{-- Fil de conversation --}}
+                        <div class="chat-container mb-3" id="chatContainer">
+                            <div class="chat-empty">
+                                <i class="bi bi-chat-square-dots" style="font-size:1.5rem;opacity:.3;"></i>
+                                Aucun message pour ce dossier.
                             </div>
-                        @enderror
-
-                        <form action="{{ route('password.change') }}" method="POST">
+                        </div>
+                        {{-- Formulaire réponse admin --}}
+                        <form method="POST" id="formMessageDossier" action="">
                             @csrf
-                            <div class="mb-3">
-                                <label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.4rem;">Mot de passe actuel</label>
-                                <div class="input-group">
-                                    <input type="password" name="current_password" id="adminCurrentPwd"
-                                           class="form-control @error('current_password') is-invalid @enderror"
-                                           style="border-radius:10px 0 0 10px;font-size:0.9rem;"
-                                           placeholder="Votre mot de passe actuel" required>
-                                    <button class="btn btn-outline-secondary" type="button"
-                                            onclick="toggleAdminPwd('adminCurrentPwd', this)"
-                                            style="border-radius:0 10px 10px 0;">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                </div>
+                            <div class="mb-2">
+                                <label class="form-label-elyon">Répondre au client</label>
+                                <textarea name="contenu" class="form-control-elyon" rows="3"
+                                          placeholder="Écrivez votre message…"
+                                          maxlength="1000" required></textarea>
+                                <div style="font-size:.7rem;color:var(--muted);margin-top:.25rem;">Max. 1000 caractères</div>
                             </div>
-                            <div class="mb-3">
-                                <label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.4rem;">Nouveau mot de passe</label>
-                                <div class="input-group">
-                                    <input type="password" name="password" id="adminNewPwd"
-                                           class="form-control @error('password') is-invalid @enderror"
-                                           style="border-radius:10px 0 0 10px;font-size:0.9rem;"
-                                           placeholder="Minimum 8 caractères" required>
-                                    <button class="btn btn-outline-secondary" type="button"
-                                            onclick="toggleAdminPwd('adminNewPwd', this)"
-                                            style="border-radius:0 10px 10px 0;">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.4rem;">Confirmer le nouveau mot de passe</label>
-                                <div class="input-group">
-                                    <input type="password" name="password_confirmation" id="adminConfirmPwd"
-                                           class="form-control"
-                                           style="border-radius:10px 0 0 10px;font-size:0.9rem;"
-                                           placeholder="Répétez le nouveau mot de passe" required>
-                                    <button class="btn btn-outline-secondary" type="button"
-                                            onclick="toggleAdminPwd('adminConfirmPwd', this)"
-                                            style="border-radius:0 10px 10px 0;">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-warning w-100 fw-semibold"
-                                    style="border-radius:10px;font-size:0.9rem;padding:0.65rem;color:#fff;">
-                                <i class="bi bi-lock me-1"></i> Changer le mot de passe
+                            <button type="submit" class="btn-primary-elyon">
+                                <i class="bi bi-send-fill me-1"></i> Envoyer le message
                             </button>
                         </form>
                     </div>
 
                 </div>
-
-                {{-- Déconnexion --}}
-                <div class="px-4 pb-4" style="background:#fff;border-top:1px solid #f3f4f6;">
-                    <button class="btn btn-outline-danger w-100 mt-2"
-                            style="border-radius:10px;font-size:0.88rem;"
-                            onclick="document.getElementById('logout-form-admin').submit();">
-                        <i class="bi bi-box-arrow-right me-1"></i> Se déconnecter
-                    </button>
-                    <form id="logout-form-admin" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
-                </div>
-
             </div>
         </div>
     </div>
 </div>
 
-{{-- ══ MODAL AJOUTER SERVICE ══ --}}
-<div class="modal fade" id="modalAddService" tabindex="-1">
-    <div class="modal-dialog"><div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-briefcase me-2"></i>Nouveau service</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-        <form method="POST" action="{{ route('admin.services.store') }}">
-            @csrf
-            <div class="modal-body">
-                <div class="mb-3"><label class="form-label-elyon">Nom *</label><input type="text" name="nom" class="form-control-elyon" required placeholder="Ex: Études en France"></div>
-                <div class="mb-3"><label class="form-label-elyon">Pays *</label><input type="text" name="pays" class="form-control-elyon" required placeholder="Ex: France"></div>
-                <div class="mb-3"><label class="form-label-elyon">Description</label><textarea name="description" class="form-control-elyon" rows="3" placeholder="Description..."></textarea></div>
-            </div>
-            <div class="modal-footer"><button type="button" class="btn-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn-accent-elyon"><i class="bi bi-check-lg me-1"></i> Créer</button></div>
-        </form>
-    </div></div>
-</div>
-
-{{-- ══ MODAL MODIFIER SERVICE ══ --}}
-<div class="modal fade" id="modalEditService" tabindex="-1">
-    <div class="modal-dialog"><div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Modifier le service</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-        <form method="POST" id="formEditService" action="">
-            @csrf @method('PUT')
-            <div class="modal-body">
-                <div class="mb-3"><label class="form-label-elyon">Nom *</label><input type="text" name="nom" id="editServiceNom" class="form-control-elyon" required></div>
-                <div class="mb-3"><label class="form-label-elyon">Pays *</label><input type="text" name="pays" id="editServicePays" class="form-control-elyon" required></div>
-                <div class="mb-3"><label class="form-label-elyon">Description</label><textarea name="description" id="editServiceDescription" class="form-control-elyon" rows="3"></textarea></div>
-            </div>
-            <div class="modal-footer"><button type="button" class="btn-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn-primary-elyon"><i class="bi bi-check-lg me-1"></i> Enregistrer</button></div>
-        </form>
-    </div></div>
-</div>
-
-{{-- ══ MODAL AJOUTER DOCUMENT ══ --}}
-<div class="modal fade" id="modalAddDocument" tabindex="-1">
-    <div class="modal-dialog"><div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-file-earmark-plus me-2"></i>Nouveau document requis</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-        <form method="POST" action="{{ route('admin.documents.store') }}">
-            @csrf
-            <div class="modal-body">
-                <div class="mb-3"><label class="form-label-elyon">Nom *</label><input type="text" name="nom" class="form-control-elyon" required placeholder="Ex: Passeport valide"></div>
-                <div class="mb-3">
-                    <label class="form-label-elyon">Service *</label>
-                    <select name="service_id" class="form-control-elyon" required>
-                        <option value="">— Choisir —</option>
-                        @foreach($services as $s)<option value="{{ $s->id }}">{{ $s->nom }} — {{ $s->pays }}</option>@endforeach
-                    </select>
+{{-- MODAL PROFIL ADMIN --}}
+<div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:24px;overflow:hidden;">
+            <div class="modal-body p-0">
+                <div class="text-center py-4 px-4" style="background:linear-gradient(135deg,#0f172a,#1e3a5f);">
+                    <div class="position-relative d-inline-block mb-3">
+                        <img src="{{ auth()->user()->avatar ? asset('storage/'.auth()->user()->avatar) : asset('images/avatar.png') }}"
+                             class="rounded-circle border border-3 border-white"
+                             style="width:90px;height:90px;object-fit:cover;" alt="Avatar" id="avatarPreview">
+                        <form action="{{ route('admin.avatar.update') }}" method="POST" enctype="multipart/form-data" id="avatarForm">
+                            @csrf
+                            <label title="Changer la photo" style="position:absolute;bottom:2px;right:2px;width:28px;height:28px;border-radius:50%;background:#3b82f6;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid #fff;font-size:12px;">
+                                <i class="bi bi-camera-fill"></i>
+                                <input type="file" name="avatar" hidden accept="image/jpeg,image/png,image/jpg,image/webp" onchange="previewAvatar(this)">
+                            </label>
+                        </form>
+                    </div>
+                    <div class="text-white fw-bold" style="font-size:1rem;">{{ auth()->user()->name }}</div>
+                    <div style="color:rgba(255,255,255,0.55);font-size:0.85rem;">{{ auth()->user()->email }}</div>
+                    <span class="badge mt-2" style="background:rgba(59,130,246,0.25);color:#93c5fd;font-size:0.75rem;padding:4px 12px;border-radius:999px;border:1px solid rgba(59,130,246,0.3);">Administrateur</span>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label-elyon d-flex align-items-center gap-2">
-                        <input type="checkbox" name="obligatoire" value="1" checked style="width:16px;height:16px;accent-color:var(--primary);"> Document obligatoire
-                    </label>
+                <div class="px-4 pt-3 pb-1" style="background:#fff;border-bottom:1px solid #e5e7eb;">
+                    <ul class="nav nav-pills gap-2" role="tablist">
+                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pane-profil-admin" type="button" style="font-size:.85rem;border-radius:8px;padding:6px 14px;"><i class="bi bi-person me-1"></i> Mon profil</button></li>
+                        <li class="nav-item"><button class="nav-link" id="tab-mdp-admin" data-bs-toggle="pill" data-bs-target="#pane-mdp-admin" type="button" style="font-size:.85rem;border-radius:8px;padding:6px 14px;"><i class="bi bi-lock me-1"></i> Mot de passe</button></li>
+                    </ul>
                 </div>
-            </div>
-            <div class="modal-footer"><button type="button" class="btn-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn-accent-elyon"><i class="bi bi-check-lg me-1"></i> Créer</button></div>
-        </form>
-    </div></div>
-</div>
-
-{{-- ══ MODAL MODIFIER DOCUMENT ══ --}}
-<div class="modal fade" id="modalEditDocument" tabindex="-1">
-    <div class="modal-dialog"><div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Modifier le document</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-        <form method="POST" id="formEditDocument" action="">
-            @csrf @method('PUT')
-            <div class="modal-body">
-                <div class="mb-3"><label class="form-label-elyon">Nom *</label><input type="text" name="nom" id="editDocNom" class="form-control-elyon" required></div>
-                <div class="mb-3">
-                    <label class="form-label-elyon">Service *</label>
-                    <select name="service_id" id="editDocService" class="form-control-elyon" required>
-                        @foreach($services as $s)<option value="{{ $s->id }}">{{ $s->nom }} — {{ $s->pays }}</option>@endforeach
-                    </select>
+                <div class="tab-content px-4 pb-4 pt-3" style="background:#fff;">
+                    <div class="tab-pane fade show active" id="pane-profil-admin" role="tabpanel">
+                        <div id="avatarSaveBtn" class="d-none mb-3">
+                            <button type="button" onclick="document.getElementById('avatarForm').submit();" class="btn btn-primary w-100" style="border-radius:10px;font-size:.88rem;"><i class="bi bi-floppy me-1"></i> Sauvegarder la photo</button>
+                        </div>
+                        <form action="{{ route('admin.profile.update') }}" method="POST">
+                            @csrf
+                            <div class="mb-3"><label style="font-size:.82rem;font-weight:600;color:#374151;display:block;margin-bottom:.4rem;">Nom complet</label><input type="text" name="name" value="{{ old('name',auth()->user()->name) }}" class="form-control @error('name') is-invalid @enderror" style="border-radius:10px;font-size:.9rem;" required>@error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror</div>
+                            <div class="mb-3"><label style="font-size:.82rem;font-weight:600;color:#374151;display:block;margin-bottom:.4rem;">Adresse email</label><input type="email" name="email" value="{{ old('email',auth()->user()->email) }}" class="form-control @error('email') is-invalid @enderror" style="border-radius:10px;font-size:.9rem;" required>@error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror</div>
+                            <div class="mb-3"><label style="font-size:.82rem;font-weight:600;color:#374151;display:block;margin-bottom:.4rem;">Téléphone <span style="color:#9ca3af;font-size:.75rem;">(optionnel)</span></label><input type="text" name="telephone" value="{{ old('telephone',auth()->user()->telephone) }}" class="form-control" style="border-radius:10px;font-size:.9rem;" placeholder="+242 06 000 00 00"></div>
+                            <button type="submit" class="btn btn-primary w-100" style="border-radius:10px;font-size:.9rem;padding:.65rem;"><i class="bi bi-floppy me-1"></i> Enregistrer</button>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" id="pane-mdp-admin" role="tabpanel">
+                        <div class="alert mb-3 py-2" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;font-size:.82rem;color:#1e40af;"><i class="bi bi-info-circle me-1"></i> Minimum <strong>8 caractères</strong>.</div>
+                        @error('current_password')<div class="alert alert-danger py-2 mb-3" style="font-size:.82rem;border-radius:10px;"><i class="bi bi-x-circle me-1"></i> {{ $message }}</div>@enderror
+                        <form action="{{ route('password.change') }}" method="POST">
+                            @csrf
+                            <div class="mb-3"><label style="font-size:.82rem;font-weight:600;color:#374151;display:block;margin-bottom:.4rem;">Mot de passe actuel</label><div class="input-group"><input type="password" name="current_password" id="adminCurrentPwd" class="form-control @error('current_password') is-invalid @enderror" style="border-radius:10px 0 0 10px;font-size:.9rem;" required><button class="btn btn-outline-secondary" type="button" onclick="toggleAdminPwd('adminCurrentPwd',this)" style="border-radius:0 10px 10px 0;"><i class="bi bi-eye"></i></button></div></div>
+                            <div class="mb-3"><label style="font-size:.82rem;font-weight:600;color:#374151;display:block;margin-bottom:.4rem;">Nouveau mot de passe</label><div class="input-group"><input type="password" name="password" id="adminNewPwd" class="form-control @error('password') is-invalid @enderror" style="border-radius:10px 0 0 10px;font-size:.9rem;" required><button class="btn btn-outline-secondary" type="button" onclick="toggleAdminPwd('adminNewPwd',this)" style="border-radius:0 10px 10px 0;"><i class="bi bi-eye"></i></button></div></div>
+                            <div class="mb-3"><label style="font-size:.82rem;font-weight:600;color:#374151;display:block;margin-bottom:.4rem;">Confirmer</label><div class="input-group"><input type="password" name="password_confirmation" id="adminConfirmPwd" class="form-control" style="border-radius:10px 0 0 10px;font-size:.9rem;" required><button class="btn btn-outline-secondary" type="button" onclick="toggleAdminPwd('adminConfirmPwd',this)" style="border-radius:0 10px 10px 0;"><i class="bi bi-eye"></i></button></div></div>
+                            <button type="submit" class="btn btn-warning w-100 fw-semibold" style="border-radius:10px;font-size:.9rem;padding:.65rem;color:#fff;"><i class="bi bi-lock me-1"></i> Changer le mot de passe</button>
+                        </form>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label-elyon d-flex align-items-center gap-2">
-                        <input type="checkbox" id="editDocObligatoire" name="obligatoire" value="1" style="width:16px;height:16px;accent-color:var(--primary);"> Document obligatoire
-                    </label>
+                <div class="px-4 pb-4" style="background:#fff;border-top:1px solid #f3f4f6;">
+                    <button class="btn btn-outline-danger w-100 mt-2" style="border-radius:10px;font-size:.88rem;" onclick="document.getElementById('logout-form-admin').submit();"><i class="bi bi-box-arrow-right me-1"></i> Se déconnecter</button>
+                    <form id="logout-form-admin" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
                 </div>
             </div>
-            <div class="modal-footer"><button type="button" class="btn-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn-primary-elyon"><i class="bi bi-check-lg me-1"></i> Enregistrer</button></div>
-        </form>
-    </div></div>
+        </div>
+    </div>
 </div>
 
-{{-- ══ MODAL AJOUTER ÉTAPE ══ --}}
-<div class="modal fade" id="modalAddEtape" tabindex="-1">
-    <div class="modal-dialog"><div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-list-check me-2"></i>Nouvelle étape</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-        <form method="POST" action="{{ route('admin.etapes.store') }}">
-            @csrf
-            <div class="modal-body">
-                <div class="mb-3"><label class="form-label-elyon">Titre *</label><input type="text" name="nom" class="form-control-elyon" required placeholder="Ex: Dépôt du dossier"></div>
-                <div class="mb-3">
-                    <label class="form-label-elyon">Service *</label>
-                    <select name="service_id" class="form-control-elyon" required>
-                        <option value="">— Choisir —</option>
-                        @foreach($services as $s)<option value="{{ $s->id }}">{{ $s->nom }} — {{ $s->pays }}</option>@endforeach
-                    </select>
-                </div>
-                <div class="mb-3"><label class="form-label-elyon">Ordre *</label><input type="number" name="ordre" class="form-control-elyon" min="1" required placeholder="1"></div>
-            </div>
-            <div class="modal-footer"><button type="button" class="btn-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn-accent-elyon"><i class="bi bi-check-lg me-1"></i> Créer</button></div>
-        </form>
-    </div></div>
-</div>
+{{-- MODALS CRUD --}}
+<div class="modal fade" id="modalAddService" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-briefcase me-2"></i>Nouveau service</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><form method="POST" action="{{ route('admin.services.store') }}">@csrf<div class="modal-body"><div class="mb-3"><label class="form-label-elyon">Nom *</label><input type="text" name="nom" class="form-control-elyon" required placeholder="Ex: Études en France"></div><div class="mb-3"><label class="form-label-elyon">Pays *</label><input type="text" name="pays" class="form-control-elyon" required placeholder="Ex: France"></div><div class="mb-3"><label class="form-label-elyon">Description</label><textarea name="description" class="form-control-elyon" rows="3"></textarea></div></div><div class="modal-footer"><button type="button" class="btn-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn-accent-elyon"><i class="bi bi-check-lg me-1"></i> Créer</button></div></form></div></div></div>
 
-{{-- ══ MODAL MODIFIER ÉTAPE ══ --}}
-<div class="modal fade" id="modalEditEtape" tabindex="-1">
-    <div class="modal-dialog"><div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Modifier l'étape</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-        <form method="POST" id="formEditEtape" action="">
-            @csrf @method('PUT')
-            <div class="modal-body">
-                <div class="mb-3"><label class="form-label-elyon">Titre *</label><input type="text" name="nom" id="editEtapeNom" class="form-control-elyon" required></div>
-                <div class="mb-3">
-                    <label class="form-label-elyon">Service *</label>
-                    <select name="service_id" id="editEtapeService" class="form-control-elyon" required>
-                        @foreach($services as $s)<option value="{{ $s->id }}">{{ $s->nom }} — {{ $s->pays }}</option>@endforeach
-                    </select>
-                </div>
-                <div class="mb-3"><label class="form-label-elyon">Ordre *</label><input type="number" name="ordre" id="editEtapeOrdre" class="form-control-elyon" min="1" required></div>
-            </div>
-            <div class="modal-footer"><button type="button" class="btn-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn-primary-elyon"><i class="bi bi-check-lg me-1"></i> Enregistrer</button></div>
-        </form>
-    </div></div>
-</div>
+<div class="modal fade" id="modalEditService" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Modifier le service</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><form method="POST" id="formEditService" action="">@csrf @method('PUT')<div class="modal-body"><div class="mb-3"><label class="form-label-elyon">Nom *</label><input type="text" name="nom" id="editServiceNom" class="form-control-elyon" required></div><div class="mb-3"><label class="form-label-elyon">Pays *</label><input type="text" name="pays" id="editServicePays" class="form-control-elyon" required></div><div class="mb-3"><label class="form-label-elyon">Description</label><textarea name="description" id="editServiceDescription" class="form-control-elyon" rows="3"></textarea></div></div><div class="modal-footer"><button type="button" class="btn-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn-primary-elyon"><i class="bi bi-check-lg me-1"></i> Enregistrer</button></div></form></div></div></div>
 
-{{-- ══ MODAL AJOUTER INFOS VISA ══ --}}
-<div class="modal fade" id="modalAddInfosVisa" tabindex="-1">
-    <div class="modal-dialog"><div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-passport me-2"></i>Nouvelles infos visa</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-        <form method="POST" action="{{ route('admin.infosVisa.store') }}">
-            @csrf
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label-elyon">Service *</label>
-                    <select name="service_id" class="form-control-elyon" required>
-                        <option value="">— Choisir —</option>
-                        @foreach($services as $s)<option value="{{ $s->id }}">{{ $s->nom }} — {{ $s->pays }}</option>@endforeach
-                    </select>
-                </div>
-                <div class="mb-3"><label class="form-label-elyon">Délai</label><input type="text" name="delai" class="form-control-elyon" placeholder="Ex: 2 à 4 semaines"></div>
-                <div class="mb-3"><label class="form-label-elyon">Frais</label><input type="text" name="frais" class="form-control-elyon" placeholder="Ex: 80€"></div>
-                <div class="mb-3"><label class="form-label-elyon">Ambassade</label><input type="text" name="ambassade" class="form-control-elyon" placeholder="Ex: Ambassade de France"></div>
-                <div class="mb-3"><label class="form-label-elyon">Notes</label><textarea name="notes" class="form-control-elyon" rows="3" placeholder="Informations complémentaires..."></textarea></div>
-            </div>
-            <div class="modal-footer"><button type="button" class="btn-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn-accent-elyon"><i class="bi bi-check-lg me-1"></i> Créer</button></div>
-        </form>
-    </div></div>
-</div>
+<div class="modal fade" id="modalAddDocument" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-file-earmark-plus me-2"></i>Nouveau document requis</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><form method="POST" action="{{ route('admin.documents.store') }}">@csrf<div class="modal-body"><div class="mb-3"><label class="form-label-elyon">Nom *</label><input type="text" name="nom" class="form-control-elyon" required placeholder="Ex: Passeport valide"></div><div class="mb-3"><label class="form-label-elyon">Service *</label><select name="service_id" class="form-control-elyon" required><option value="">— Choisir —</option>@foreach($services as $s)<option value="{{ $s->id }}">{{ $s->nom }} — {{ $s->pays }}</option>@endforeach</select></div><div class="mb-3"><label class="form-label-elyon d-flex align-items-center gap-2"><input type="checkbox" name="obligatoire" value="1" checked style="width:16px;height:16px;accent-color:var(--primary);"> Document obligatoire</label></div></div><div class="modal-footer"><button type="button" class="btn-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn-accent-elyon"><i class="bi bi-check-lg me-1"></i> Créer</button></div></form></div></div></div>
 
-{{-- ══ MODAL MODIFIER INFOS VISA ══ --}}
-<div class="modal fade" id="modalEditInfosVisa" tabindex="-1">
-    <div class="modal-dialog"><div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Modifier les infos visa</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-        <form method="POST" id="formEditInfosVisa" action="">
-            @csrf @method('PUT')
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label-elyon">Service *</label>
-                    <select name="service_id" id="editVisaService" class="form-control-elyon" required>
-                        @foreach($services as $s)<option value="{{ $s->id }}">{{ $s->nom }} — {{ $s->pays }}</option>@endforeach
-                    </select>
-                </div>
-                <div class="mb-3"><label class="form-label-elyon">Délai</label><input type="text" name="delai" id="editVisaDelai" class="form-control-elyon"></div>
-                <div class="mb-3"><label class="form-label-elyon">Frais</label><input type="text" name="frais" id="editVisaFrais" class="form-control-elyon"></div>
-                <div class="mb-3"><label class="form-label-elyon">Ambassade</label><input type="text" name="ambassade" id="editVisaAmbassade" class="form-control-elyon"></div>
-                <div class="mb-3"><label class="form-label-elyon">Notes</label><textarea name="notes" id="editVisaNotes" class="form-control-elyon" rows="3"></textarea></div>
-            </div>
-            <div class="modal-footer"><button type="button" class="btn-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn-primary-elyon"><i class="bi bi-check-lg me-1"></i> Enregistrer</button></div>
-        </form>
-    </div></div>
-</div>
+<div class="modal fade" id="modalEditDocument" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Modifier le document</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><form method="POST" id="formEditDocument" action="">@csrf @method('PUT')<div class="modal-body"><div class="mb-3"><label class="form-label-elyon">Nom *</label><input type="text" name="nom" id="editDocNom" class="form-control-elyon" required></div><div class="mb-3"><label class="form-label-elyon">Service *</label><select name="service_id" id="editDocService" class="form-control-elyon" required>@foreach($services as $s)<option value="{{ $s->id }}">{{ $s->nom }} — {{ $s->pays }}</option>@endforeach</select></div><div class="mb-3"><label class="form-label-elyon d-flex align-items-center gap-2"><input type="checkbox" id="editDocObligatoire" name="obligatoire" value="1" style="width:16px;height:16px;accent-color:var(--primary);"> Document obligatoire</label></div></div><div class="modal-footer"><button type="button" class="btn-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn-primary-elyon"><i class="bi bi-check-lg me-1"></i> Enregistrer</button></div></form></div></div></div>
 
-{{-- ====== SCRIPTS ====== --}}
+<div class="modal fade" id="modalAddEtape" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-list-check me-2"></i>Nouvelle étape</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><form method="POST" action="{{ route('admin.etapes.store') }}">@csrf<div class="modal-body"><div class="mb-3"><label class="form-label-elyon">Titre *</label><input type="text" name="nom" class="form-control-elyon" required placeholder="Ex: Dépôt du dossier"></div><div class="mb-3"><label class="form-label-elyon">Service *</label><select name="service_id" class="form-control-elyon" required><option value="">— Choisir —</option>@foreach($services as $s)<option value="{{ $s->id }}">{{ $s->nom }} — {{ $s->pays }}</option>@endforeach</select></div><div class="mb-3"><label class="form-label-elyon">Ordre *</label><input type="number" name="ordre" class="form-control-elyon" min="1" required placeholder="1"></div></div><div class="modal-footer"><button type="button" class="btn-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn-accent-elyon"><i class="bi bi-check-lg me-1"></i> Créer</button></div></form></div></div></div>
+
+<div class="modal fade" id="modalEditEtape" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Modifier l'étape</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><form method="POST" id="formEditEtape" action="">@csrf @method('PUT')<div class="modal-body"><div class="mb-3"><label class="form-label-elyon">Titre *</label><input type="text" name="nom" id="editEtapeNom" class="form-control-elyon" required></div><div class="mb-3"><label class="form-label-elyon">Service *</label><select name="service_id" id="editEtapeService" class="form-control-elyon" required>@foreach($services as $s)<option value="{{ $s->id }}">{{ $s->nom }} — {{ $s->pays }}</option>@endforeach</select></div><div class="mb-3"><label class="form-label-elyon">Ordre *</label><input type="number" name="ordre" id="editEtapeOrdre" class="form-control-elyon" min="1" required></div></div><div class="modal-footer"><button type="button" class="btn-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn-primary-elyon"><i class="bi bi-check-lg me-1"></i> Enregistrer</button></div></form></div></div></div>
+
+<div class="modal fade" id="modalAddInfosVisa" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-passport me-2"></i>Nouvelles infos visa</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><form method="POST" action="{{ route('admin.infosVisa.store') }}">@csrf<div class="modal-body"><div class="mb-3"><label class="form-label-elyon">Service *</label><select name="service_id" class="form-control-elyon" required><option value="">— Choisir —</option>@foreach($services as $s)<option value="{{ $s->id }}">{{ $s->nom }} — {{ $s->pays }}</option>@endforeach</select></div><div class="mb-3"><label class="form-label-elyon">Délai</label><input type="text" name="delai" class="form-control-elyon" placeholder="Ex: 2 à 4 semaines"></div><div class="mb-3"><label class="form-label-elyon">Frais</label><input type="text" name="frais" class="form-control-elyon" placeholder="Ex: 80€"></div><div class="mb-3"><label class="form-label-elyon">Ambassade</label><input type="text" name="ambassade" class="form-control-elyon" placeholder="Ex: Ambassade de France"></div><div class="mb-3"><label class="form-label-elyon">Notes</label><textarea name="notes" class="form-control-elyon" rows="3"></textarea></div></div><div class="modal-footer"><button type="button" class="btn-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn-accent-elyon"><i class="bi bi-check-lg me-1"></i> Créer</button></div></form></div></div></div>
+
+<div class="modal fade" id="modalEditInfosVisa" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Modifier les infos visa</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><form method="POST" id="formEditInfosVisa" action="">@csrf @method('PUT')<div class="modal-body"><div class="mb-3"><label class="form-label-elyon">Service *</label><select name="service_id" id="editVisaService" class="form-control-elyon" required>@foreach($services as $s)<option value="{{ $s->id }}">{{ $s->nom }} — {{ $s->pays }}</option>@endforeach</select></div><div class="mb-3"><label class="form-label-elyon">Délai</label><input type="text" name="delai" id="editVisaDelai" class="form-control-elyon"></div><div class="mb-3"><label class="form-label-elyon">Frais</label><input type="text" name="frais" id="editVisaFrais" class="form-control-elyon"></div><div class="mb-3"><label class="form-label-elyon">Ambassade</label><input type="text" name="ambassade" id="editVisaAmbassade" class="form-control-elyon"></div><div class="mb-3"><label class="form-label-elyon">Notes</label><textarea name="notes" id="editVisaNotes" class="form-control-elyon" rows="3"></textarea></div></div><div class="modal-footer"><button type="button" class="btn-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn-primary-elyon"><i class="bi bi-check-lg me-1"></i> Enregistrer</button></div></form></div></div></div>
+
+{{-- ════════════════════════════════════════════════
+     DONNÉES JSON — sérialisées depuis Laravel
+     Chaque dossier contient ses docs + messages
+════════════════════════════════════════════════ --}}
+@php
+$dossiersFormatted = $dossiers->map(function($d) {
+    return [
+        'id'      => $d->id,
+        'client'  => $d->user->name  ?? '—',
+        'service' => $d->service->nom ?? '—',
+        'statut'  => $d->statut,
+
+        // Documents uploadés : nom via documentRequis, chemin via fichier
+        'documents' => $d->documents->map(function($doc) {
+            return [
+                'id'          => $doc->id,
+                'nom'         => $doc->documentRequis->nom ?? basename($doc->fichier ?? ''),
+                'fichier'     => $doc->fichier ?? null,
+                'statut'      => $doc->statut,
+                'commentaire' => $doc->commentaire ?? '',
+                'created_at'  => optional($doc->created_at)->format('d/m/Y H:i'),
+                'extension'   => strtolower(pathinfo($doc->fichier ?? '', PATHINFO_EXTENSION)),
+            ];
+        })->values(),
+
+        // Messages : is_admin basé sur le rôle de l'expéditeur
+        'messages' => $d->messages->map(function($m) {
+            return [
+                'id'         => $m->id,
+                'contenu'    => $m->contenu,
+                'is_admin'   => ($m->expediteur->role ?? 'client') === 'admin',
+                'auteur'     => $m->expediteur->name ?? '—',
+                'created_at' => optional($m->created_at)->format('d/m/Y à H:i'),
+            ];
+        })->values(),
+    ];
+})->keyBy('id');
+@endphp
+
+{{-- ════════════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════════════ --}}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 <script>
-    AOS.init({ duration: 800, once: true, offset: 60, easing: 'ease-out-cubic' });
+/* ── Données injectées depuis Laravel ── */
+const dossiersData = @json($dossiersFormatted);
 
-    /* ── Navigation entre panels ── */
-    const panelTitles = {
-        'dashboard':            'Tableau de bord',
-        'dossiers':             'Gestion des dossiers',
-        'utilisateurs-recents': 'Nouveaux clients',
-        'services':             'Services',
-        'documents':            'Documents requis',
-        'etapes':               'Étapes de traitement',
-        'infos-visa':           'Informations Visa',
-        'utilisateurs':         'Utilisateurs',
+/* ── 1. AOS ── */
+AOS.init({ duration:800, once:true, offset:60, easing:'ease-out-cubic' });
+
+/* ── 2. NAVIGATION PANELS ── */
+const panelTitles = {
+    'dashboard':'Tableau de bord','dossiers':'Gestion des dossiers',
+    'utilisateurs-recents':'Nouveaux clients','services':'Services',
+    'documents':'Documents requis','etapes':'Étapes de traitement',
+    'infos-visa':'Informations Visa','utilisateurs':'Utilisateurs'
+};
+function showPanel(panelId, clickedLink) {
+    document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById('panel-' + panelId);
+    if (target) target.classList.add('active');
+    document.querySelectorAll('.sidebar-nav .nav-link').forEach(l => l.classList.remove('active'));
+    if (clickedLink) clickedLink.classList.add('active');
+    document.getElementById('topbarTitle').textContent = panelTitles[panelId] || 'Administration';
+    if (window.innerWidth < 992) closeSidebar();
+    AOS.refresh();
+}
+
+/* ── 3. SIDEBAR MOBILE ── */
+function toggleSidebar() {
+    document.getElementById('adminSidebar').classList.toggle('show');
+    document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+function closeSidebar() {
+    document.getElementById('adminSidebar').classList.remove('show');
+    document.getElementById('sidebarOverlay').classList.remove('show');
+}
+
+/* ── 4. FILTRE DOSSIERS ── */
+function filterDossiers() {
+    const statut  = document.getElementById('filterStatut').value.toLowerCase();
+    const service = document.getElementById('filterService').value;
+    const search  = document.getElementById('filterSearch').value.toLowerCase();
+    document.querySelectorAll('#tableDossiers tbody tr').forEach(row => {
+        const ok = (!statut  || (row.dataset.statut  ||'') === statut)  &&
+                   (!service || (row.dataset.service ||'') === service) &&
+                   (!search  || (row.dataset.client  ||'').includes(search));
+        row.style.display = ok ? '' : 'none';
+    });
+}
+
+/* ── 5. PREVIEW AVATAR (topbar + sidebar) ── */
+function previewAvatar(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('avatarPreview').src  = e.target.result;
+            document.getElementById('topbarAvatarImg').src = e.target.result;
+            const sidebarImg = document.getElementById('sidebarAvatarImg');
+            if (sidebarImg) sidebarImg.src = e.target.result;
+            document.getElementById('avatarSaveBtn').classList.remove('d-none');
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+/* ── 6. TOGGLE MOT DE PASSE ── */
+function toggleAdminPwd(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon  = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
+
+/* ── 7. HELPERS ── */
+function escHtml(str) {
+    return String(str)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+        .replace(/\n/g,'<br>');
+}
+function getDocIcon(ext) {
+    if (['jpg','jpeg','png','gif','webp'].includes(ext)) return { cls:'img',  icon:'bi-file-image' };
+    if (ext === 'pdf')                                    return { cls:'pdf',  icon:'bi-file-pdf'   };
+    if (['doc','docx'].includes(ext))                     return { cls:'word', icon:'bi-file-word'  };
+    return { cls:'', icon:'bi-file-earmark' };
+}
+function getDocStatutBadge(statut) {
+    const map = {
+        en_attente:{ bg:'#fef3c7', color:'#92400e', label:'En attente' },
+        valide:    { bg:'#d1fae5', color:'#065f46', label:'Validé'     },
+        refuse:    { bg:'#fee2e2', color:'#991b1b', label:'Refusé'     },
     };
+    const s = map[statut] || map['en_attente'];
+    return `<span style="background:${s.bg};color:${s.color};font-size:.7rem;font-weight:700;padding:.15rem .55rem;border-radius:20px;">${s.label}</span>`;
+}
 
-    function showPanel(panelId, clickedLink) {
-        document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
-        const target = document.getElementById('panel-' + panelId);
-        if (target) target.classList.add('active');
-        document.querySelectorAll('.sidebar-nav .nav-link').forEach(l => l.classList.remove('active'));
-        if (clickedLink) {
-            clickedLink.classList.add('active');
-        } else {
-            document.querySelectorAll('.sidebar-nav .nav-link').forEach(l => {
-                if (l.getAttribute('onclick') && l.getAttribute('onclick').includes("'" + panelId + "'"))
-                    l.classList.add('active');
-            });
-        }
-        document.getElementById('topbarTitle').textContent = panelTitles[panelId] || 'Administration';
-        if (window.innerWidth < 992) closeSidebar();
-        AOS.refresh();
-    }
+/* ── 8. MODAL GÉRER DOSSIER ── */
+document.addEventListener('shown.bs.modal', function(e) {
+    const modal = e.target;
+    const btn   = e.relatedTarget;
 
-    /* ── Sidebar mobile ── */
-    function toggleSidebar() {
-        document.getElementById('adminSidebar').classList.toggle('show');
-        document.getElementById('sidebarOverlay').classList.toggle('show');
-    }
-
-    function closeSidebar() {
-        document.getElementById('adminSidebar').classList.remove('show');
-        document.getElementById('sidebarOverlay').classList.remove('show');
-    }
-
-    /* ── Filtre dossiers ── */
-    function filterDossiers() {
-        const statut  = document.getElementById('filterStatut').value.toLowerCase();
-        const service = document.getElementById('filterService').value;
-        const search  = document.getElementById('filterSearch').value.toLowerCase();
-        document.querySelectorAll('#tableDossiers tbody tr').forEach(row => {
-            const ok = (!statut  || (row.dataset.statut  || '') === statut) &&
-                       (!service || (row.dataset.service || '') === service) &&
-                       (!search  || (row.dataset.client  || '').includes(search));
-            row.style.display = ok ? '' : 'none';
-        });
-    }
-
-    /* ── Preview avatar avant envoi ── */
-    function previewAvatar(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                // Mettre à jour l'aperçu dans le modal
-                document.getElementById('avatarPreview').src = e.target.result;
-                // Mettre à jour la topbar en temps réel
-                document.getElementById('topbarAvatarImg').src = e.target.result;
-                // Afficher le bouton sauvegarder
-                document.getElementById('avatarSaveBtn').classList.remove('d-none');
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    /* ── Toggle visibilité mot de passe ── */
-    function toggleAdminPwd(inputId, btn) {
-        const input = document.getElementById(inputId);
-        const icon  = btn.querySelector('i');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.replace('bi-eye', 'bi-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.replace('bi-eye-slash', 'bi-eye');
-        }
-    }
-
-    /* ── Remplissage automatique des modals de modification ── */
-    document.addEventListener('shown.bs.modal', function(e) {
-        const modal = e.target;
-        const btn   = e.relatedTarget;
+    /* ── Modal Gérer Dossier ── */
+    if (modal.id === 'modalGererDossier') {
         if (!btn) return;
 
-        if (modal.id === 'modalEditService') {
-            document.getElementById('editServiceNom').value         = btn.dataset.nom         || '';
-            document.getElementById('editServicePays').value        = btn.dataset.pays        || '';
-            document.getElementById('editServiceDescription').value = btn.dataset.description || '';
-            document.getElementById('formEditService').action = '/admin/services/' + btn.dataset.id;
+        const id   = String(btn.dataset.id);
+        const data = dossiersData[id];
+
+        if (!data) { console.error('Dossier introuvable:', id); return; }
+
+        /* Titre résumé */
+        document.getElementById('modalDossierTitle').textContent        = '#' + id;
+        document.getElementById('modalDossierClientHeader').textContent = data.client;
+        document.getElementById('modalDossierClient').textContent       = data.client;
+        document.getElementById('modalDossierService').textContent      = data.service;
+
+        /* Badge statut */
+        const badgeMap = {
+            en_attente:['#fef3c7','#92400e','En attente'],
+            en_cours:  ['#dbeafe','#1d4ed8','En cours' ],
+            valide:    ['#d1fae5','#065f46','Validé'   ],
+            refuse:    ['#fee2e2','#991b1b','Refusé'   ],
+        };
+        const [bg,color,label] = badgeMap[data.statut] || badgeMap['en_attente'];
+        document.getElementById('modalDossierStatutBadge').innerHTML =
+            `<span style="background:${bg};color:${color};font-size:.78rem;font-weight:700;padding:.25rem .65rem;border-radius:20px;">${label}</span>`;
+
+        /* Pré-sélectionner statut actuel */
+        const sel = document.getElementById('selectStatutDossier');
+        if (sel) [...sel.options].forEach(o => o.selected = (o.value === data.statut));
+
+        /* Actions formulaires */
+        document.getElementById('formStatutDossier').action  = '/admin/dossiers/' + id + '/statut';
+        document.getElementById('formMessageDossier').action = '/admin/dossiers/' + id + '/messages';
+
+        /* Compteurs onglets */
+        document.getElementById('docsCount').textContent = data.documents.length;
+        document.getElementById('msgsCount').textContent = data.messages.length;
+
+        /* ── ONGLET DOCUMENTS ── */
+        const docsList = document.getElementById('docsList');
+        if (data.documents.length === 0) {
+            docsList.innerHTML = `<div class="doc-empty"><i class="bi bi-file-earmark-x"></i>Aucun document uploadé par le client.</div>`;
+        } else {
+            docsList.innerHTML = data.documents.map(doc => {
+                const ico = getDocIcon(doc.extension);
+                const url = doc.fichier ? '/storage/' + doc.fichier : '#';
+                const commentHtml = doc.commentaire
+                    ? `<div style="font-size:.72rem;color:#dc2626;margin-top:.2rem;"><i class="bi bi-exclamation-circle me-1"></i>${escHtml(doc.commentaire)}</div>`
+                    : '';
+                return `
+                    <div class="doc-item">
+                        <div class="doc-icon ${ico.cls}"><i class="bi ${ico.icon}"></i></div>
+                        <div style="flex:1;min-width:0;">
+                            <div class="doc-name" title="${escHtml(doc.nom)}">${escHtml(doc.nom)}</div>
+                            <div class="doc-date">${doc.created_at || ''} — ${getDocStatutBadge(doc.statut)}</div>
+                            ${commentHtml}
+                        </div>
+                        <a href="${url}" target="_blank" class="btn-download">
+                            <i class="bi bi-download"></i> Voir
+                        </a>
+                    </div>`;
+            }).join('');
         }
 
-        if (modal.id === 'modalEditDocument') {
-            document.getElementById('editDocNom').value = btn.dataset.nom || '';
-            document.getElementById('editDocObligatoire').checked = (btn.dataset.obligatoire == '1');
-            const sel = document.getElementById('editDocService');
-            [...sel.options].forEach(o => o.selected = (o.value == btn.dataset.service));
-            document.getElementById('formEditDocument').action = '/admin/documents/' + btn.dataset.id;
+        /* ── ONGLET MESSAGES ── */
+        const chatContainer = document.getElementById('chatContainer');
+        if (data.messages.length === 0) {
+            chatContainer.innerHTML = `<div class="chat-empty"><i class="bi bi-chat-square-dots" style="font-size:1.5rem;opacity:.3;"></i>Aucun message pour ce dossier.</div>`;
+        } else {
+            chatContainer.innerHTML = data.messages.map(m => {
+                const isAdmin = m.is_admin;
+                return `
+                    <div style="display:flex;flex-direction:column;align-items:${isAdmin ? 'flex-end' : 'flex-start'};">
+                        <div class="chat-sender-label ${isAdmin ? 'chat-sender-label-admin' : 'chat-sender-label-client'}">
+                            <i class="bi bi-${isAdmin ? 'shield-fill-check' : 'person-fill'} me-1"></i>
+                            ${escHtml(m.auteur)}
+                        </div>
+                        <div class="chat-bubble ${isAdmin ? 'chat-bubble-admin' : 'chat-bubble-client'}">
+                            ${escHtml(m.contenu)}
+                            <div class="chat-meta ${isAdmin ? 'chat-meta-admin' : 'chat-meta-client'}">${m.created_at}</div>
+                        </div>
+                    </div>`;
+            }).join('');
+            /* Scroll bas automatique */
+            requestAnimationFrame(() => { chatContainer.scrollTop = chatContainer.scrollHeight; });
         }
 
-        if (modal.id === 'modalEditEtape') {
-            document.getElementById('editEtapeNom').value   = btn.dataset.nom   || '';
-            document.getElementById('editEtapeOrdre').value = btn.dataset.ordre || '';
-            const sel = document.getElementById('editEtapeService');
-            [...sel.options].forEach(o => o.selected = (o.value == btn.dataset.service));
-            document.getElementById('formEditEtape').action = '/admin/etapes/' + btn.dataset.id;
-        }
+        /* ── Activer le bon onglet selon data-tab du bouton ── */
+        const targetTab = btn.dataset.tab || 'statut';
+        const tabMap = { statut:'tab-statut-btn', documents:'tab-docs-btn', messages:'tab-msgs-btn' };
+        const tabBtn = document.getElementById(tabMap[targetTab] || 'tab-statut-btn');
+        if (tabBtn) setTimeout(() => new bootstrap.Tab(tabBtn).show(), 50);
+    }
 
-        if (modal.id === 'modalEditInfosVisa') {
-            document.getElementById('editVisaDelai').value     = btn.dataset.delai     || '';
-            document.getElementById('editVisaFrais').value     = btn.dataset.frais     || '';
-            document.getElementById('editVisaAmbassade').value = btn.dataset.ambassade || '';
-            document.getElementById('editVisaNotes').value     = btn.dataset.notes     || '';
-            const sel = document.getElementById('editVisaService');
-            [...sel.options].forEach(o => o.selected = (o.value == btn.dataset.service));
-            document.getElementById('formEditInfosVisa').action = '/admin/infos-visa/' + btn.dataset.id;
-        }
+    /* ── Autres modals CRUD ── */
+    if (!btn) return;
+
+    if (modal.id === 'modalEditService') {
+        document.getElementById('editServiceNom').value         = btn.dataset.nom         || '';
+        document.getElementById('editServicePays').value        = btn.dataset.pays        || '';
+        document.getElementById('editServiceDescription').value = btn.dataset.description || '';
+        document.getElementById('formEditService').action = '/admin/services/' + btn.dataset.id;
+    }
+    if (modal.id === 'modalEditDocument') {
+        document.getElementById('editDocNom').value = btn.dataset.nom || '';
+        document.getElementById('editDocObligatoire').checked = (btn.dataset.obligatoire == '1');
+        const sel = document.getElementById('editDocService');
+        [...sel.options].forEach(o => o.selected = (o.value == btn.dataset.service));
+        document.getElementById('formEditDocument').action = '/admin/documents/' + btn.dataset.id;
+    }
+    if (modal.id === 'modalEditEtape') {
+        document.getElementById('editEtapeNom').value   = btn.dataset.nom   || '';
+        document.getElementById('editEtapeOrdre').value = btn.dataset.ordre || '';
+        const sel = document.getElementById('editEtapeService');
+        [...sel.options].forEach(o => o.selected = (o.value == btn.dataset.service));
+        document.getElementById('formEditEtape').action = '/admin/etapes/' + btn.dataset.id;
+    }
+    if (modal.id === 'modalEditInfosVisa') {
+        document.getElementById('editVisaDelai').value     = btn.dataset.delai     || '';
+        document.getElementById('editVisaFrais').value     = btn.dataset.frais     || '';
+        document.getElementById('editVisaAmbassade').value = btn.dataset.ambassade || '';
+        document.getElementById('editVisaNotes').value     = btn.dataset.notes     || '';
+        const sel = document.getElementById('editVisaService');
+        [...sel.options].forEach(o => o.selected = (o.value == btn.dataset.service));
+        document.getElementById('formEditInfosVisa').action = '/admin/infos-visa/' + btn.dataset.id;
+    }
+});
+
+/* ── 9. OUVERTURE AUTO MODAL PROFIL SI ERREUR MDP ── */
+@if($errors->has('current_password') || $errors->has('password'))
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = new bootstrap.Modal(document.getElementById('profileModal'));
+        modal.show();
+        setTimeout(function() {
+            const tab = document.getElementById('tab-mdp-admin');
+            if (tab) new bootstrap.Tab(tab).show();
+        }, 300);
     });
-
-    /* ── Ouvrir automatiquement l'onglet mot de passe si erreur ── */
-    @if($errors->has('current_password') || $errors->has('password'))
-        document.addEventListener('DOMContentLoaded', function() {
-            const modal = new bootstrap.Modal(document.getElementById('profileModal'));
-            modal.show();
-            setTimeout(function() {
-                const tab = document.getElementById('tab-mdp-admin');
-                if (tab) new bootstrap.Tab(tab).show();
-            }, 300);
-        });
-    @endif
+@endif
 </script>
 
 </body>

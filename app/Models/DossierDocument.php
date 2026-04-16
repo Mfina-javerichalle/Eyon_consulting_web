@@ -9,8 +9,10 @@ class DossierDocument extends Model
 {
     use HasFactory;
 
+    protected $table = 'dossier_documents';
+
     /**
-     * Les champs que l'on peut remplir en masse
+     * Les champs remplissables en masse
      */
     protected $fillable = [
         'dossier_id',
@@ -21,8 +23,14 @@ class DossierDocument extends Model
     ];
 
     /**
+     * Valeurs par défaut
+     */
+    protected $attributes = [
+        'statut' => 'en_attente',
+    ];
+
+    /**
      * Un document uploadé appartient à un dossier
-     * Relation : DossierDocument → belongsTo → Dossier
      */
     public function dossier()
     {
@@ -31,7 +39,6 @@ class DossierDocument extends Model
 
     /**
      * Un document uploadé est lié à un document requis
-     * Relation : DossierDocument → belongsTo → DocumentRequis
      */
     public function documentRequis()
     {

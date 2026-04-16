@@ -11,6 +11,11 @@ class ProfileController extends Controller
 {
     /**
      * Mettre à jour l'avatar du client
+     *
+     * CORRECTION PRODUCTION :
+     * Utilise Storage::disk('public') pour que les fichiers soient
+     * accessibles via asset('storage/avatars/...')
+     * OBLIGATOIRE sur le serveur : php artisan storage:link
      */
     public function updateAvatar(Request $request)
     {
@@ -25,21 +30,22 @@ class ProfileController extends Controller
 
         $user = Auth::user();
 
-        // Supprimer l'ancien avatar s'il existe
+        // Supprimer l'ancien avatar s'il existe dans le storage
         if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
             Storage::disk('public')->delete($user->avatar);
         }
 
-        // Stocker le nouvel avatar
+        // Stocker le nouvel avatar dans storage/app/public/avatars/
+        // Chemin stocké en base : "avatars/fichier.jpg"
+        // Vue : asset('storage/' . $user->avatar) ✓
         $path = $request->file('avatar')->store('avatars', 'public');
 
-        // Mettre à jour en base de données
         $user->update(['avatar' => $path]);
 
         return redirect()->route('client.dashboard')
-            ->with('password_success', 'Photo de profil mise à jour avec succès !');
+            ->with('success', 'Photo de profil mise à jour avec succès !');
     }
-
+ 
     /**
      * Mettre à jour les informations du profil client
      */
