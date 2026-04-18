@@ -297,7 +297,7 @@
             <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
                 <div>
                     <h1 class="dossier-hero-title">
-                        Dossier #{{ $dossier->id }} — {{ $dossier->service->nom ?? '—' }}
+                        Dossier — {{ $dossier->service->nom ?? '—' }}
                     </h1>
                     <p class="dossier-hero-sub mb-2">
                         <i class="bi bi-geo-alt me-1"></i> {{ $dossier->service->pays ?? '—' }}
@@ -316,7 +316,7 @@
             @if($dossier->statut === 'en_attente')
                 <div class="mt-3 d-flex align-items-center gap-2" style="font-size:0.85rem; color:rgba(255,255,255,0.8);">
                     <i class="bi bi-clock-history"></i>
-                    <span>Votre dossier est en attente — uploadez vos documents pour accélérer le traitement.</span>
+                    <span>Votre dossier est en attente — Envoyez vos documents pour accélérer le traitement.</span>
                 </div>
             @elseif($dossier->statut === 'en_cours')
                 <div class="mt-3 d-flex align-items-center gap-2" style="font-size:0.85rem; color:rgba(255,255,255,0.8);">
@@ -344,143 +344,136 @@
             <div class="col-lg-7">
 
                 {{-- SECTION DOCUMENTS REQUIS --}}
-                <div class="ec-card" data-aos="fade-up">
-                    <div class="ec-card-header">
-                        <h3>
-                            <i class="bi bi-file-earmark-text text-primary"></i>
-                            Documents requis
-                        </h3>
-                        {{-- Compteur documents uploadés / total --}}
-                        <span style="font-size:0.82rem; color:var(--muted);">
-                            {{ $documentsAvecStatut->filter(fn($d) => $d['uploaded'])->count() }}
-                            /
-                            {{ $documentsAvecStatut->count() }} uploadés
-                        </span>
-                    </div>
-                    <div class="ec-card-body">
+               <div class="ec-card" data-aos="fade-up">
+    <div class="ec-card-header">
+        <h3>
+            <i class="bi bi-file-earmark-text text-primary"></i>
+            Documents requis
+        </h3>
+        <span style="font-size:0.82rem; color:var(--muted);">
+            {{ $documentsAvecStatut->filter(fn($d) => $d['uploaded'])->count() }}
+            /
+            {{ $documentsAvecStatut->count() }} envoyé(s)
+        </span>
+    </div>
+    <div class="ec-card-body">
 
-                        <div class="ec-alert ec-alert-info mb-3">
-                            <i class="bi bi-info-circle-fill" style="flex-shrink:0;"></i>
-                            <div>
-                                Uploadez chaque document requis (PDF, JPG, PNG — max 5 Mo).
-                                L'admin validera ou demandera une correction.
-                            </div>
+        <div class="ec-alert ec-alert-info mb-3">
+            <i class="bi bi-info-circle-fill" style="flex-shrink:0;"></i>
+            <div>
+                Envoyez chaque document requis (PDF, JPG, PNG — max 5 Mo).
+            </div>
+        </div>
+
+        @foreach($documentsAvecStatut as $item)
+            @php
+                $requis      = $item['requis'];
+                $uploaded    = $item['uploaded'];
+                $isUploaded  = $uploaded !== null;
+                $isRefused   = $isUploaded && $uploaded->statut === 'refuse';
+                $isValidated = $isUploaded && $uploaded->statut === 'valide';
+            @endphp
+
+            <div class="doc-item {{ $isUploaded ? ($isRefused ? 'refused' : 'uploaded') : '' }}">
+
+                {{-- Icône + nom du document --}}
+                <div class="doc-item-left">
+                    <div class="doc-icon-wrap {{ $isUploaded ? ($isRefused ? 'doc-icon-refused' : 'doc-icon-uploaded') : 'doc-icon-pending' }}">
+                        <i class="bi bi-{{ $isUploaded ? ($isRefused ? 'x-circle-fill' : 'check-circle-fill') : 'file-earmark' }}"
+                           style="font-size:1.1rem;"></i>
+                    </div>
+                    <div>
+                        <div class="doc-name">
+                            {{ $requis->nom }}
+                            @if($requis->obligatoire)
+                                <span class="doc-obligatoire">obligatoire</span>
+                            @else
+                                <span class="doc-facultatif">facultatif</span>
+                            @endif
                         </div>
 
-                        {{-- Liste des documents requis --}}
-                        @foreach($documentsAvecStatut as $item)
-                            @php
-                                $requis   = $item['requis'];
-                                $uploaded = $item['uploaded'];
-                                $isUploaded = $uploaded !== null;
-                                $isRefused  = $isUploaded && $uploaded->statut === 'refuse';
-                                $isValidated = $isUploaded && $uploaded->statut === 'valide';
-                            @endphp
-
-                            <div class="doc-item {{ $isUploaded ? ($isRefused ? 'refused' : 'uploaded') : '' }}">
-
-                                {{-- Icône + nom du document --}}
-                                <div class="doc-item-left">
-                                    <div class="doc-icon-wrap {{ $isUploaded ? ($isRefused ? 'doc-icon-refused' : 'doc-icon-uploaded') : 'doc-icon-pending' }}">
-                                        <i class="bi bi-{{ $isUploaded ? ($isRefused ? 'x-circle-fill' : 'check-circle-fill') : 'file-earmark' }}"
-                                           style="font-size:1.1rem;"></i>
-                                    </div>
-                                    <div>
-                                        <div class="doc-name">
-                                            {{ $requis->nom }}
-                                            @if($requis->obligatoire)
-                                                <span class="doc-obligatoire">obligatoire</span>
-                                            @else
-                                                <span class="doc-facultatif">facultatif</span>
-                                            @endif
-                                        </div>
-
-                                        {{-- Statut si déjà uploadé --}}
-                                        @if($isUploaded)
-                                            <div class="d-flex align-items-center gap-2 mt-1">
-                                                <span class="doc-status-badge doc-status-{{ $uploaded->statut }}">
-                                                    {{ ucfirst($uploaded->statut) }}
-                                                </span>
-                                                {{-- Lien pour voir le fichier uploadé --}}
-                                                <a href="{{ asset('storage/' . $uploaded->fichier) }}"
-                                                   target="_blank" class="doc-file-link">
-                                                    <i class="bi bi-eye"></i> Voir le fichier
-                                                </a>
-
-                                                {{-- Bouton supprimer le document (si pas validé) --}}
-                                                @if($uploaded->statut !== 'valide')
-                                                    <form action="{{ route('client.dossiers.documents.delete', [$dossier->id, $uploaded->id]) }}"
-                                                          method="POST" class="d-inline"
-                                                          onsubmit="return confirm('Supprimer ce document ? Cette action est irréversible.');">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="doc-file-link"
-                                                                style="background:none;border:none;padding:0;color:var(--danger);cursor:pointer;"
-                                                                title="Supprimer ce document">
-                                                            <i class="bi bi-trash3"></i> Supprimer
-                                                        </button>
-                                                    </form>
-                                                @endif
-                                            </div>
-                                            {{-- Commentaire admin en cas de refus --}}
-                                            @if($isRefused && $uploaded->commentaire)
-                                                <div class="mt-1" style="font-size:0.78rem; color:var(--danger);">
-                                                    <i class="bi bi-exclamation-circle me-1"></i>
-                                                    {{ $uploaded->commentaire }}
-                                                </div>
-                                            @endif
-                                        @else
-                                            <div class="doc-meta">En attente d'upload</div>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                {{-- Formulaire d'upload (désactivé si validé) --}}
-                                @if(!$isValidated)
-                                    <form action="{{ route('client.dossiers.documents.upload', $dossier->id) }}"
-                                          method="POST" enctype="multipart/form-data"
-                                          id="uploadForm{{ $requis->id }}"
-                                          class="d-flex align-items-center gap-2 flex-shrink-0">
+                        @if($isUploaded)
+                            <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                                <span class="doc-status-badge doc-status-{{ $uploaded->statut }}">
+                                    @if($uploaded->statut === 'en_attente') En attente
+                                    @elseif($uploaded->statut === 'valide')  Validé
+                                    @elseif($uploaded->statut === 'refuse')  Refusé
+                                    @else {{ ucfirst($uploaded->statut) }}
+                                    @endif
+                                </span>
+                                <a href="{{ asset('storage/' . $uploaded->fichier) }}"
+                                   target="_blank" class="doc-file-link">
+                                    <i class="bi bi-eye"></i> Voir le fichier
+                                </a>
+                                @if($uploaded->statut !== 'valide')
+                                    <form action="{{ route('client.dossiers.documents.delete', [$dossier->id, $uploaded->id]) }}"
+                                          method="POST" class="d-inline"
+                                          onsubmit="return confirm('Supprimer ce document ? Cette action est irréversible.');">
                                         @csrf
-                                        <input type="hidden" name="document_requis_id" value="{{ $requis->id }}">
-
-                                        {{-- Label cliquable qui déclenche l'input file caché --}}
-                                        <label for="file{{ $requis->id }}"
-                                               class="btn-upload-label"
-                                               id="label{{ $requis->id }}">
-                                            <i class="bi bi-cloud-upload"></i>
-                                            {{ $isUploaded ? 'Remplacer' : 'Uploader' }}
-                                        </label>
-                                        <input type="file" id="file{{ $requis->id }}" name="fichier"
-                                               hidden accept=".pdf,.jpg,.jpeg,.png,.webp"
-                                               onchange="handleFileSelect(this, {{ $requis->id }})">
-
-                                        {{-- Bouton envoyer (caché jusqu'à sélection d'un fichier) --}}
-                                        <button type="submit" class="btn-form-submit d-none"
-                                                id="submitBtn{{ $requis->id }}"
-                                                style="padding:0.5rem 1rem; font-size:0.82rem;">
-                                            <i class="bi bi-send"></i> Envoyer
+                                        @method('DELETE')
+                                        <button type="submit" class="doc-file-link"
+                                                style="background:none;border:none;padding:0;color:var(--danger);cursor:pointer;"
+                                                title="Supprimer ce document">
+                                            <i class="bi bi-trash3"></i> Supprimer
                                         </button>
                                     </form>
-                                @else
-                                    {{-- Document validé — pas besoin de re-uploader --}}
-                                    <span style="font-size:0.78rem; color:var(--success); font-weight:600;">
-                                        <i class="bi bi-shield-check me-1"></i> Validé
-                                    </span>
                                 @endif
-
                             </div>
-                        @endforeach
-
-                        @if($documentsAvecStatut->isEmpty())
-                            <div class="text-center py-4" style="color:var(--muted);">
-                                <i class="bi bi-folder2-open" style="font-size:2rem; display:block; margin-bottom:0.5rem; opacity:0.3;"></i>
-                                <p>Aucun document requis pour ce service.</p>
-                            </div>
+                            @if($isRefused && $uploaded->commentaire)
+                                <div class="mt-1" style="font-size:0.78rem; color:var(--danger);">
+                                    <i class="bi bi-exclamation-circle me-1"></i>
+                                    {{ $uploaded->commentaire }}
+                                </div>
+                            @endif
+                        @else
+                            <div class="doc-meta">En attente d'envoi</div>
                         @endif
-
                     </div>
                 </div>
+
+                {{-- Formulaire d'envoi (désactivé si validé) --}}
+                @if(!$isValidated)
+                    <form action="{{ route('client.dossiers.documents.upload', $dossier->id) }}"
+                          method="POST" enctype="multipart/form-data"
+                          id="uploadForm{{ $requis->id }}"
+                          class="d-flex align-items-center gap-2 flex-shrink-0">
+                        @csrf
+                        <input type="hidden" name="document_requis_id" value="{{ $requis->id }}">
+
+                        <label for="file{{ $requis->id }}"
+                               class="btn-upload-label"
+                               id="label{{ $requis->id }}">
+                            <i class="bi bi-cloud-upload"></i>
+                            {{ $isUploaded ? 'Remplacer' : 'Envoyer' }}
+                        </label>
+                        <input type="file" id="file{{ $requis->id }}" name="fichier"
+                               hidden accept=".pdf,.jpg,.jpeg,.png,.webp"
+                               onchange="handleFileSelect(this, {{ $requis->id }})">
+
+                        <button type="submit" class="btn-form-submit d-none"
+                                id="submitBtn{{ $requis->id }}"
+                                style="padding:0.5rem 1rem; font-size:0.82rem;">
+                            <i class="bi bi-send"></i> Confirmer
+                        </button>
+                    </form>
+                @else
+                    <span style="font-size:0.78rem; color:var(--success); font-weight:600;">
+                        <i class="bi bi-shield-check me-1"></i> Validé
+                    </span>
+                @endif
+
+            </div>
+        @endforeach
+
+        @if($documentsAvecStatut->isEmpty())
+            <div class="text-center py-4" style="color:var(--muted);">
+                <i class="bi bi-folder2-open" style="font-size:2rem; display:block; margin-bottom:0.5rem; opacity:0.3;"></i>
+                <p>Aucun document requis pour ce service.</p>
+            </div>
+        @endif
+
+    </div>
+</div>
 
             </div>
 
