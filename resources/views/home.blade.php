@@ -1448,7 +1448,7 @@
             </div>
             <div class="col-lg-7" data-aos="fade-left">
                 <div class="about-feature">
-                    <div class="about-feature-icon"><i class="bi bi-shield-check-fill"></i></div>
+                    <div class="about-feature-icon"><i class="bi bi-shield"></i></div>
                     <div><h5>Sécurité & Fiabilité</h5><p>Vos documents sont stockés de façon sécurisée et confidentiels. Nous respectons scrupuleusement les réglementations RGPD.</p></div>
                 </div>
                 <div class="about-feature">

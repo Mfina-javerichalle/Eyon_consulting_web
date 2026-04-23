@@ -76,7 +76,8 @@ class DossierController extends Controller
     /*
     |--------------------------------------------------------------------------
     | DÉTAIL D'UN DOSSIER
-    | Retourne toutes les infos d'un dossier avec ses documents et étapes
+    | Retourne toutes les infos d'un dossier avec ses documents requis
+    | et leur statut d'upload, ainsi que les étapes de traitement
     |--------------------------------------------------------------------------
     */
     public function show(Request $request, Dossier $dossier)
@@ -90,6 +91,29 @@ class DossierController extends Controller
 
         $dossier->load(['service', 'documents.documentRequis', 'etapes.etape']);
 
+        // Récupérer TOUS les documents requis du service
+        // même ceux qui n'ont pas encore été uploadés
+        $documentsRequis = DocumentRequis::where('service_id', $dossier->service_id)->get();
+
+        $documents = $documentsRequis->map(function ($docRequis) use ($dossier) {
+            // Chercher si ce document a déjà été uploadé pour ce dossier
+            $uploaded = $dossier->documents
+                ->first(fn($d) => $d->document_requis_id === $docRequis->id);
+
+            return [
+                // id = ID du document requis (utilisé pour l'upload)
+                'id'          => $docRequis->id,
+                'nom'         => $docRequis->nom,
+                'obligatoire' => (bool) $docRequis->obligatoire,
+                // Si pas encore uploadé → statut 'non_envoye'
+                'statut'      => $uploaded ? $uploaded->statut : 'non_envoye',
+                'fichier'     => $uploaded?->fichier
+                    ? asset('storage/' . $uploaded->fichier)
+                    : null,
+                'commentaire' => $uploaded?->commentaire,
+            ];
+        });
+
         return response()->json([
             'dossier' => [
                 'id'         => $dossier->id,
@@ -100,14 +124,8 @@ class DossierController extends Controller
                     'nom'  => $dossier->service->nom,
                     'pays' => $dossier->service->pays,
                 ],
-                'documents' => $dossier->documents->map(fn($doc) => [
-                    'id'       => $doc->id,
-                    'nom'      => $doc->documentRequis->nom ?? '—',
-                    'statut'   => $doc->statut,
-                    'fichier'  => $doc->fichier ? asset('storage/' . $doc->fichier) : null,
-                    'commentaire' => $doc->commentaire,
-                ]),
-                'etapes' => $dossier->etapes->map(fn($de) => [
+                'documents' => $documents,
+                'etapes'    => $dossier->etapes->map(fn($de) => [
                     'id'     => $de->id,
                     'nom'    => $de->etape->nom ?? '—',
                     'ordre'  => $de->etape->ordre ?? 0,

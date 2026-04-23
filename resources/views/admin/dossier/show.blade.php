@@ -428,10 +428,10 @@
                                     <div class="row g-3 align-items-end">
                                         <div class="col-md-7">
                                             <select name="statut" class="form-select" style="border-radius:10px;border:1.5px solid var(--border);font-family:var(--font-body);padding:.65rem 1rem;" required>
-                                                <option value="en_attente" {{ $dossier->statut === 'en_attente' ? 'selected' : '' }}>⏳ En attente</option>
-                                                <option value="en_cours"   {{ $dossier->statut === 'en_cours'   ? 'selected' : '' }}>🔄 En cours de traitement</option>
-                                                <option value="valide"     {{ $dossier->statut === 'valide'     ? 'selected' : '' }}>✅ Validé</option>
-                                                <option value="refuse"     {{ $dossier->statut === 'refuse'     ? 'selected' : '' }}>❌ Refusé</option>
+                                                <option value="en_attente" {{ $dossier->statut === 'en_attente' ? 'selected' : '' }}>En attente</option>
+                                                <option value="en_cours"   {{ $dossier->statut === 'en_cours'   ? 'selected' : '' }}>En cours de traitement</option>
+                                                <option value="valide"     {{ $dossier->statut === 'valide'     ? 'selected' : '' }}>Validé</option>
+                                                <option value="refuse"     {{ $dossier->statut === 'refuse'     ? 'selected' : '' }}>Refusé</option>
                                             </select>
                                         </div>
                                         <div class="col-md-5">
@@ -624,8 +624,9 @@
                                             {{ $isAdmin ? 'Vous (Admin)' : $message->expediteur->name ?? '—' }}
                                         </div>
                                         <div class="bubble-text">{{ $message->contenu }}</div>
-                                        <div class="bubble-time">{{ optional($message->created_at)->format('d/m/Y à H:i') }}</div>
-                                    </div>
+<span class="msg-time" data-utc="{{ optional($message->created_at)->toISOString() }}">
+    {{ optional($message->created_at)->format('d/m/Y à H:i') }}
+</span>                                    </div>
                                 </div>
                             @endforeach
                         @endif
@@ -735,7 +736,64 @@ function scrollChat() {
     const c = document.getElementById('chatContainer');
     if (c) requestAnimationFrame(() => { c.scrollTop = c.scrollHeight; });
 }
-document.addEventListener('DOMContentLoaded', scrollChat);
+
+/* ══════════════════════════════════════════════
+   CONVERSION DES DATES UTC → HEURE LOCALE
+   But : corriger le décalage horaire entre
+   la BDD (UTC) et l'utilisateur (son pays)
+══════════════════════════════════════════════ */
+function convertirDates() {
+
+    // Sélectionne tous les éléments HTML qui ont
+    // la classe "msg-time" dans la page
+    // (= tous les divs qui affichent une heure de message)
+    document.querySelectorAll('.msg-time').forEach(el => {
+
+        // Lit l'attribut data-utc de l'élément
+        // Exemple de valeur : "2026-04-23T09:00:00.000000Z"
+        // C'est la date stockée en UTC dans MySQL
+        const utc = el.getAttribute('data-utc');
+
+        // Sécurité : si l'attribut est vide ou absent,
+        // on arrête là pour éviter une erreur JavaScript
+        if (!utc) return;
+
+        // Crée un objet Date JavaScript à partir de la
+        // chaîne UTC — JS comprend automatiquement
+        // que le "Z" à la fin signifie UTC
+        const date = new Date(utc);
+
+        // Remplace le texte affiché dans le div
+        // par la date convertie dans le fuseau
+        // horaire LOCAL du navigateur de l'utilisateur
+        // 'fr-FR' = format français (jour/mois/année)
+        el.textContent = date.toLocaleString('fr-FR', {
+            day:    '2-digit', // ex: 23
+            month:  '2-digit', // ex: 04
+            year:   'numeric', // ex: 2026
+            hour:   '2-digit', // ex: 10
+            minute: '2-digit'  // ex: 00
+            // Résultat final : "23/04/2026, 10:00"
+        });
+    });
+}
+
+/* ══════════════════════════════════════════════
+   ATTENDRE QUE LA PAGE SOIT ENTIÈREMENT CHARGÉE
+   avant d'exécuter les fonctions
+   (sinon JS cherche des éléments qui n'existent
+   pas encore et ça provoque des erreurs)
+══════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+
+    // Scroll automatique vers le bas du chat
+    // pour voir le dernier message
+    scrollChat();
+
+    // Conversion de toutes les dates UTC
+    // en heure locale de l'utilisateur
+    convertirDates();
+});
 
 /* ── Auto-resize textarea ── */
 const chatInput = document.querySelector('.chat-input');

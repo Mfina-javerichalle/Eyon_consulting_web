@@ -529,8 +529,9 @@
                                                 {{ $message->contenu }}
                                             </div>
                                             {{-- Heure du message --}}
-                                            <div class="bubble-time">
-                                                {{ $message->created_at->format('d/m/Y à H:i') }}
+                                            <div class="bubble-time msg-time"
+                                              data-utc="{{ optional($message->created_at)->toISOString() }}">
+                                               {{ optional($message->created_at)->format('d/m/Y à H:i') }}
                                             </div>
                                         </div>
                                     </div>
@@ -642,56 +643,96 @@
     ═══════════════════════════════════════════════════════ */
     AOS.init({ duration: 700, once: true, offset: 40 });
 
-    /* ═══════════════════════════════════════════════════════
-       2. SCROLL AUTOMATIQUE EN BAS DU CHAT
-       Permet de toujours voir le dernier message
-    ═══════════════════════════════════════════════════════ */
-    const chatContainer = document.getElementById('chatContainer');
-    if (chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+/* ═══════════════════════════════════════════════════════
+   2. SCROLL AUTOMATIQUE EN BAS DU CHAT
+   Permet de toujours voir le dernier message
+   au chargement de la page
+═══════════════════════════════════════════════════════ */
+const chatContainer = document.getElementById('chatContainer');
+if (chatContainer) {
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+/* ═══════════════════════════════════════════════════════
+   3. CONVERSION DES DATES UTC → HEURE LOCALE
+   Corrige le décalage horaire entre la BDD (UTC)
+   et le fuseau horaire de l'utilisateur (son pays)
+   Un client au Congo verra UTC+1
+   Un client en France verra UTC+2 (été) ou UTC+1 (hiver)
+═══════════════════════════════════════════════════════ */
+function convertirDates() {
+
+    // Sélectionne tous les éléments qui ont
+    // la classe "msg-time" dans la page
+    document.querySelectorAll('.msg-time').forEach(el => {
+
+        // Lit la date UTC stockée dans l'attribut data-utc
+        // Exemple : "2026-04-23T09:00:00.000000Z"
+        const utc = el.getAttribute('data-utc');
+
+        // Sécurité : si l'attribut est absent, on arrête
+        if (!utc) return;
+
+        // Crée un objet Date JavaScript à partir de l'UTC
+        const date = new Date(utc);
+
+        // Remplace le texte par la date convertie
+        // dans le fuseau horaire local du navigateur
+        el.textContent = date.toLocaleString('fr-FR', {
+            day:    '2-digit', // ex: 23
+            month:  '2-digit', // ex: 04
+            year:   'numeric', // ex: 2026
+            hour:   '2-digit', // ex: 10
+            minute: '2-digit'  // ex: 00
+            // Résultat : "23/04/2026, 10:00"
+        });
+    });
+}
+
+// Appelle la fonction au chargement de la page
+document.addEventListener('DOMContentLoaded', convertirDates);
+
+/* ═══════════════════════════════════════════════════════
+   4. GESTION SÉLECTION FICHIER POUR L'UPLOAD
+   Quand l'utilisateur sélectionne un fichier :
+   - Met à jour le label avec le nom du fichier
+   - Affiche le bouton "Confirmer"
+═══════════════════════════════════════════════════════ */
+function handleFileSelect(input, docId) {
+    const label     = document.getElementById('label' + docId);
+    const submitBtn = document.getElementById('submitBtn' + docId);
+
+    if (input.files && input.files[0]) {
+        const fileName = input.files[0].name;
+        const fileSize = (input.files[0].size / 1024 / 1024).toFixed(2);
+
+        // Mettre à jour le label avec le nom du fichier
+        label.innerHTML = `<i class="bi bi-file-earmark-check"></i> ${fileName} (${fileSize} Mo)`;
+        label.classList.add('has-file');
+
+        // Afficher le bouton confirmer
+        if (submitBtn) submitBtn.classList.remove('d-none');
     }
+}
 
-    /* ═══════════════════════════════════════════════════════
-       3. GESTION SÉLECTION FICHIER POUR L'UPLOAD
-       Quand l'utilisateur sélectionne un fichier :
-       - Met à jour le label avec le nom du fichier
-       - Affiche le bouton "Envoyer"
-    ═══════════════════════════════════════════════════════ */
-    function handleFileSelect(input, docId) {
-        const label     = document.getElementById('label' + docId);
-        const submitBtn = document.getElementById('submitBtn' + docId);
+/* ═══════════════════════════════════════════════════════
+   5. AUTO-RESIZE DU TEXTAREA DE MESSAGERIE
+   Agrandit automatiquement le champ selon le contenu
+═══════════════════════════════════════════════════════ */
+const chatInput = document.querySelector('.chat-input');
+if (chatInput) {
+    chatInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
 
-        if (input.files && input.files[0]) {
-            const fileName = input.files[0].name;
-            const fileSize = (input.files[0].size / 1024 / 1024).toFixed(2);
-
-            // Mettre à jour le label avec le nom du fichier
-            label.innerHTML = `<i class="bi bi-file-earmark-check"></i> ${fileName} (${fileSize} Mo)`;
-            label.classList.add('has-file');
-
-            // Afficher le bouton envoyer
-            if (submitBtn) submitBtn.classList.remove('d-none');
+    // Envoyer avec Ctrl+Entrée ou Cmd+Entrée
+    chatInput.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            this.closest('form').submit();
         }
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       4. AUTO-RESIZE DU TEXTAREA DE MESSAGERIE
-       Agrandit automatiquement le champ selon le contenu
-    ═══════════════════════════════════════════════════════ */
-    const chatInput = document.querySelector('.chat-input');
-    if (chatInput) {
-        chatInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        });
-
-        // Envoyer avec Ctrl+Entrée ou Cmd+Entrée
-        chatInput.addEventListener('keydown', function(e) {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                this.closest('form').submit();
-            }
-        });
-    }
+    });
+}
 </script>
 
 </body>

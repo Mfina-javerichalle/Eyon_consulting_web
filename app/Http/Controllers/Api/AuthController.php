@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -27,7 +27,6 @@ class AuthController extends Controller
             'password'  => 'required|string|min:8|confirmed',
         ]);
 
-        // Créer l'utilisateur
         $user = User::create([
             'name'      => $request->name,
             'email'     => $request->email,
@@ -37,7 +36,6 @@ class AuthController extends Controller
             'actif'     => true,
         ]);
 
-        // Générer le Bearer Token Sanctum
         $token = $user->createToken('mobile-app')->plainTextToken;
 
         return response()->json([
@@ -67,7 +65,6 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Vérifier les identifiants
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
                 'message' => 'Email ou mot de passe incorrect.',
@@ -76,7 +73,6 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        // Vérifier que le compte est actif
         if (!$user->actif) {
             Auth::logout();
             return response()->json([
@@ -84,7 +80,6 @@ class AuthController extends Controller
             ], 403);
         }
 
-        // Révoquer les anciens tokens et en créer un nouveau
         $user->tokens()->delete();
         $token = $user->createToken('mobile-app')->plainTextToken;
 
@@ -105,12 +100,11 @@ class AuthController extends Controller
     /*
     |--------------------------------------------------------------------------
     | DÉCONNEXION
-    | Révoque le token actuel — le mobile ne peut plus accéder aux routes protégées
+    | Révoque le token actuel
     |--------------------------------------------------------------------------
     */
     public function logout(Request $request)
     {
-        // Révoquer uniquement le token utilisé pour cette requête
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
@@ -121,7 +115,7 @@ class AuthController extends Controller
     /*
     |--------------------------------------------------------------------------
     | MOT DE PASSE OUBLIÉ
-    | Envoie un email de réinitialisation (même système que le web)
+    | Envoie un email de réinitialisation
     |--------------------------------------------------------------------------
     */
     public function forgotPassword(Request $request)
@@ -157,14 +151,122 @@ class AuthController extends Controller
 
         return response()->json([
             'user' => [
+                'id'         => $user->id,
+                'name'       => $user->name,
+                'email'      => $user->email,
+                'telephone'  => $user->telephone,
+                'role'       => $user->role,
+                'avatar'     => $user->avatar ? asset('storage/' . $user->avatar) : null,
+                'created_at' => $user->created_at->format('d/m/Y'),
+            ],
+        ], 200);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | METTRE À JOUR L'AVATAR
+    | Formats acceptés : JPEG, JPG, PNG, WEBP — max 2 Mo
+    |--------------------------------------------------------------------------
+    */
+    public function updateAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,jpg,png,webp|max:2048',
+        ], [
+            'avatar.required' => 'Veuillez sélectionner une image.',
+            'avatar.image'    => 'Le fichier doit être une image.',
+            'avatar.mimes'    => 'Formats acceptés : JPEG, JPG, PNG, WEBP.',
+            'avatar.max'      => 'L\'image ne doit pas dépasser 2 Mo.',
+        ]);
+
+        $user = $request->user();
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        $path = $request->file('avatar')->store('avatars', 'public');
+        $user->update(['avatar' => $path]);
+
+        return response()->json([
+            'message' => 'Avatar mis à jour avec succès !',
+            'avatar'  => asset('storage/' . $path),
+        ], 200);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | MODIFIER LE PROFIL
+    | Modifier nom, email et téléphone
+    |--------------------------------------------------------------------------
+    */
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'name'      => 'required|string|max:100',
+            'email'     => 'required|email|unique:users,email,' . $user->id,
+            'telephone' => 'nullable|string|max:20',
+        ], [
+            'email.unique' => 'Cette adresse email est déjà utilisée.',
+        ]);
+
+        $user->update([
+            'name'      => $request->name,
+            'email'     => $request->email,
+            'telephone' => $request->telephone,
+        ]);
+
+        return response()->json([
+            'message' => 'Profil mis à jour avec succès !',
+            'user'    => [
                 'id'        => $user->id,
                 'name'      => $user->name,
                 'email'     => $user->email,
                 'telephone' => $user->telephone,
                 'role'      => $user->role,
                 'avatar'    => $user->avatar ? asset('storage/' . $user->avatar) : null,
-                'created_at'=> $user->created_at->format('d/m/Y'),
             ],
+        ], 200);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SUPPRIMER LE COMPTE
+    | Supprime définitivement le compte après confirmation du mot de passe
+    |--------------------------------------------------------------------------
+    */
+    public function deleteAccount(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|string',
+        ], [
+            'password.required' => 'Veuillez confirmer votre mot de passe.',
+        ]);
+
+        $user = $request->user();
+
+        // Vérifier le mot de passe avant suppression
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Mot de passe incorrect.',
+            ], 401);
+        }
+
+        // Révoquer tous les tokens
+        $user->tokens()->delete();
+
+        // Supprimer l'avatar si existant
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        // Supprimer définitivement le compte
+        $user->delete();
+
+        return response()->json([
+            'message' => 'Votre compte a été supprimé définitivement.',
         ], 200);
     }
 }

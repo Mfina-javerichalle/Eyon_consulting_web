@@ -23,7 +23,8 @@ class MessageController extends Controller
             return response()->json(['message' => 'Accès refusé.'], 403);
         }
 
-        $messages = Message::with(['sender'])
+        // On utilise 'expediteur' — nom exact de la relation dans Message.php
+        $messages = Message::with(['expediteur'])
             ->where('dossier_id', $dossier->id)
             ->orderBy('created_at', 'asc')
             ->get()
@@ -32,9 +33,9 @@ class MessageController extends Controller
                 'contenu'    => $m->contenu,
                 'created_at' => $m->created_at->format('d/m/Y H:i'),
                 'sender'     => [
-                    'id'   => $m->sender->id,
-                    'name' => $m->sender->name,
-                    'role' => $m->sender->role,
+                    'id'   => $m->expediteur->id,
+                    'name' => $m->expediteur->name,
+                    'role' => $m->expediteur->role,
                 ],
                 'is_mine' => $m->sender_id === $request->user()->id,
             ]);
@@ -49,7 +50,6 @@ class MessageController extends Controller
     |--------------------------------------------------------------------------
     | ENVOYER UN MESSAGE
     | Le client envoie à l'admin — l'admin répond au client
-    | receiver_id est défini automatiquement selon le rôle de l'expéditeur
     |--------------------------------------------------------------------------
     */
     public function store(Request $request, Dossier $dossier)
@@ -68,16 +68,15 @@ class MessageController extends Controller
 
         $sender = $request->user();
 
-        // Si c'est un admin → il envoie au propriétaire du dossier
-        // Si c'est un client → il envoie au premier admin trouvé
-        $receiver = $sender->isAdmin()
+        // Client → envoie à l'admin
+        // Admin → envoie au propriétaire du dossier
+        $receiver = $sender->role === 'admin'
             ? $dossier->user
             : User::where('role', 'admin')->first();
 
-        // Sécurité : vérifier qu'un admin existe
         if (!$receiver) {
             return response()->json([
-                'message' => 'Impossible d\'envoyer le message : destinataire introuvable.',
+                'message' => 'Destinataire introuvable.',
             ], 500);
         }
 
@@ -88,6 +87,9 @@ class MessageController extends Controller
             'contenu'     => $request->contenu,
         ]);
 
+        // Charger la relation expediteur pour la réponse
+        $message->load('expediteur');
+
         return response()->json([
             'message' => 'Message envoyé !',
             'data'    => [
@@ -95,14 +97,9 @@ class MessageController extends Controller
                 'contenu'    => $message->contenu,
                 'created_at' => $message->created_at->format('d/m/Y H:i'),
                 'sender'     => [
-                    'id'   => $sender->id,
-                    'name' => $sender->name,
-                    'role' => $sender->role,
-                ],
-                'receiver' => [
-                    'id'   => $receiver->id,
-                    'name' => $receiver->name,
-                    'role' => $receiver->role,
+                    'id'   => $message->expediteur->id,
+                    'name' => $message->expediteur->name,
+                    'role' => $message->expediteur->role,
                 ],
                 'is_mine' => true,
             ],
