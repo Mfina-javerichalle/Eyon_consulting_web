@@ -19,6 +19,7 @@ class AdminController extends Controller
 {
     // ══════════════════════════════════════════════════
     // DASHBOARD
+    // Charge toutes les données pour la vue admin
     // ══════════════════════════════════════════════════
     public function dashboard()
     {
@@ -45,9 +46,18 @@ class AdminController extends Controller
         $infosVisa = InfosVisa::with('service')->orderBy('service_id')->get();
         $users     = User::orderBy('created_at', 'desc')->get();
 
+        // ── Compter les messages non lus reçus par l'admin ──
+        // Interroge la table messages et filtre :
+        // - receiver_id = l'admin connecté
+        // - lu = false (pas encore lus)
+        $messagesNonLus = Message::where('receiver_id', auth()->id())
+                                 ->where('lu', false)
+                                 ->count();
+
         return view('admin.dashboard', compact(
             'stats', 'services', 'documents', 'etapes',
-            'infosVisa', 'users', 'dossiers'
+            'infosVisa', 'users', 'dossiers',
+            'messagesNonLus' // ← envoyé à la vue pour afficher les notifications
         ));
     }
 
@@ -64,6 +74,16 @@ class AdminController extends Controller
             'messages.expediteur',
         ]);
 
+        // ── Marquer les messages comme lus ──
+        // Quand l'admin ouvre la page d'un dossier,
+        // tous les messages non lus qu'il a reçus dans
+        // ce dossier passent automatiquement à lu = true
+        // → le badge de notification disparaît ensuite
+        Message::where('dossier_id', $dossier->id)
+                ->where('receiver_id', auth()->id())
+                ->where('lu', false)
+                ->update(['lu' => true]);
+
         // Pour chaque document requis, on cherche s'il a été uploadé
         $documentsAvecStatut = $dossier->service->documentsRequis->map(function ($requis) use ($dossier) {
             return [
@@ -75,7 +95,9 @@ class AdminController extends Controller
         $messages = $dossier->messages->sortBy('created_at');
         $services = Service::orderBy('nom')->get();
 
-        return view('admin.dossier.show', compact('dossier', 'documentsAvecStatut', 'messages', 'services'));
+        return view('admin.dossier.show', compact(
+            'dossier', 'documentsAvecStatut', 'messages', 'services'
+        ));
     }
 
     // ══════════════════════════════════════════════════
@@ -89,6 +111,7 @@ class AdminController extends Controller
 
         $dossier->update(['statut' => $request->statut]);
 
+        // back() → reste sur la page du dossier
         return back()->with('success', 'Statut du dossier #' . $dossier->id . ' mis à jour.');
     }
 
@@ -105,6 +128,8 @@ class AdminController extends Controller
             'contenu.max'      => 'Maximum 1000 caractères.',
         ]);
 
+        // Crée le message en base de données
+        // lu = false par défaut → le client verra la notification
         Message::create([
             'sender_id'   => Auth::id(),
             'receiver_id' => $dossier->user_id,
@@ -112,15 +137,16 @@ class AdminController extends Controller
             'contenu'     => $request->contenu,
         ]);
 
-        // back() → reste sur la page du dossier, pas de rechargement vers dashboard
+        // back() → reste sur la page du dossier, ne redirige pas vers le dashboard
         return back()->with('success', 'Message envoyé au client.');
     }
 
     // ══════════════════════════════════════════════════
-    // EFFACER L'HISTORIQUE DES MESSAGES
+    // EFFACER L'HISTORIQUE DES MESSAGES D'UN DOSSIER
     // ══════════════════════════════════════════════════
     public function clearMessages(Dossier $dossier)
     {
+        // Supprime tous les messages liés à ce dossier
         Message::where('dossier_id', $dossier->id)->delete();
 
         return back()->with('success', 'Historique des messages effacé.');
@@ -133,14 +159,14 @@ class AdminController extends Controller
     {
         $document->update([
             'statut'      => 'valide',
-            'commentaire' => null,
+            'commentaire' => null, // On efface le commentaire de refus s'il existait
         ]);
 
         return back()->with('success', 'Document validé avec succès.');
     }
 
     // ══════════════════════════════════════════════════
-    // REFUSER UN DOCUMENT CLIENT (avec raison)
+    // REFUSER UN DOCUMENT CLIENT (avec raison obligatoire)
     // ══════════════════════════════════════════════════
     public function refuserDocument(Request $request, DossierDocument $document)
     {
@@ -152,7 +178,7 @@ class AdminController extends Controller
 
         $document->update([
             'statut'      => 'refuse',
-            'commentaire' => $request->commentaire,
+            'commentaire' => $request->commentaire, // Visible par le client
         ]);
 
         return back()->with('success', 'Document refusé. Le client peut le corriger.');
@@ -160,10 +186,14 @@ class AdminController extends Controller
 
     // ══════════════════════════════════════════════════
     // SUPPRIMER UN DOCUMENT CLIENT
+    // Supprime le fichier physique ET l'entrée en base
     // ══════════════════════════════════════════════════
     public function supprimerDocument(DossierDocument $document)
     {
+        // Supprime le fichier dans storage/app/public/
         Storage::disk('public')->delete($document->fichier);
+
+        // Supprime la ligne en base de données
         $document->delete();
 
         return back()->with('success', 'Document supprimé.');

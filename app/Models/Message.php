@@ -15,6 +15,7 @@ class Message extends Model
         'receiver_id',
         'dossier_id',
         'contenu',
+         'lu',
     ];
 
     /**

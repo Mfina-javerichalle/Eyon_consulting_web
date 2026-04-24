@@ -45,6 +45,15 @@ class DossierController extends Controller
 
         $messages = $dossier->messages;
 
+        // Marquer comme lus tous les messages reçus par le client
+        // dans ce dossier qui n'ont pas encore été lus (lu = false).
+        // Cela permet de mettre à jour le compteur de messages non lus
+        // dès que le client consulte la page du dossier.
+        Message::where('dossier_id', $dossier->id)
+               ->where('receiver_id', Auth::id())
+               ->where('lu', false)
+               ->update(['lu' => true]);
+
         return view('client.dossier.show', compact(
             'dossier',
             'documentsAvecStatut',

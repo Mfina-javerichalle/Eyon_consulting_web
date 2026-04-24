@@ -43,6 +43,20 @@
         .sidebar-nav .nav-link:hover,.sidebar-nav .nav-link.active{background:rgba(255,255,255,.07);color:#fff}
         .sidebar-nav .nav-link.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--accent);border-radius:0 3px 3px 0}
         .sidebar-nav .badge-count{margin-left:auto;background:var(--accent);color:var(--dark);font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:20px;min-width:20px;text-align:center}
+
+        /* ── NOUVEAU : badge rouge messages non lus dans la sidebar ── */
+        .badge-notif{
+            margin-left:auto;
+            background:var(--danger);
+            color:#fff;
+            font-size:.65rem;
+            font-weight:700;
+            padding:.15rem .45rem;
+            border-radius:20px;
+            min-width:20px;
+            text-align:center;
+        }
+
         .sidebar-footer{padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,.07)}
         .sidebar-footer .admin-meta{display:flex;align-items:center;gap:.75rem}
         .sidebar-footer .avatar-sm{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary-light),var(--primary));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;font-weight:700;flex-shrink:0;overflow:hidden}
@@ -202,6 +216,24 @@
                 @endif
             </span>
         </div>
+
+        {{-- ══════════════════════════════════════════════════════
+             NOUVEAU — Lien "Messages" dans la sidebar
+             Affiche un badge rouge avec le nombre de messages
+             non lus si l'admin en a reçu depuis les clients
+             $messagesNonLus est calculé dans AdminController@dashboard()
+        ══════════════════════════════════════════════════════ --}}
+        <div class="nav-item">
+            <span class="nav-link" onclick="showPanel('dossiers',this)">
+                <i class="bi bi-chat-dots-fill"></i> Messages
+                @if(isset($messagesNonLus) && $messagesNonLus > 0)
+                    {{-- Badge rouge — nombre de messages non lus --}}
+                    <span class="badge-notif">{{ $messagesNonLus }}</span>
+                @endif
+            </span>
+        </div>
+        {{-- ══════════════════════════════════════════════════════ --}}
+
         <div class="nav-item">
             <span class="nav-link" onclick="showPanel('utilisateurs-recents',this)">
                 <i class="bi bi-person-plus"></i> Nouveaux clients
@@ -248,6 +280,23 @@
         <a href="{{ route('home') }}" target="_blank" class="topbar-icon-btn" title="Voir le site">
             <i class="bi bi-box-arrow-up-right"></i>
         </a>
+
+        {{-- ══════════════════════════════════════════════════════
+             NOUVEAU — Icône cloche dans la topbar
+             Si l'admin a des messages non lus :
+             - Un point rouge (notif-dot) apparaît sur la cloche
+             - Au clic, redirige vers le panel dossiers
+             pour que l'admin consulte ses messages
+        ══════════════════════════════════════════════════════ --}}
+        <button class="topbar-icon-btn" title="Messages non lus" onclick="showPanel('dossiers',null)">
+            <i class="bi bi-chat-dots"></i>
+            @if(isset($messagesNonLus) && $messagesNonLus > 0)
+                {{-- Point rouge visible sur l'icône --}}
+                <span class="notif-dot"></span>
+            @endif
+        </button>
+        {{-- ══════════════════════════════════════════════════════ --}}
+
         <button class="topbar-icon-btn" title="Dossiers en attente" onclick="showPanel('dossiers',null)">
             <i class="bi bi-bell"></i>
             @if(isset($stats['dossiers_attente']) && $stats['dossiers_attente'] > 0)
@@ -271,6 +320,7 @@
 {{-- ════ MAIN ════ --}}
 <main class="admin-main">
 
+    {{-- Flash messages existants --}}
     @if(session('success'))
         <div class="alert alert-success alert-elyon alert-dismissible fade show mb-3" role="alert">
             <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
@@ -284,6 +334,33 @@
         </div>
     @endif
 
+    {{-- ══════════════════════════════════════════════════════
+         NOUVEAU — Alerte messages non lus
+         S'affiche en haut dès la connexion si l'admin
+         a des messages non lus envoyés par les clients.
+         L'admin peut fermer l'alerte avec le bouton ×
+         $messagesNonLus vient de AdminController@dashboard()
+    ══════════════════════════════════════════════════════ --}}
+    @if(isset($messagesNonLus) && $messagesNonLus > 0)
+        <div class="alert alert-dismissible fade show mb-3" role="alert"
+             style="border-radius:12px; border:none; background:#fef3c7; border-left:4px solid #f59e0b; padding:.9rem 1.1rem;">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-bell-fill" style="color:#d97706; font-size:1.1rem; flex-shrink:0;"></i>
+                <div>
+                    <strong style="color:#92400e; font-size:.9rem;">
+                        Vous avez {{ $messagesNonLus }} message(s) non lu(s) !
+                    </strong>
+                    <span style="color:#92400e; font-size:.84rem; display:block; margin-top:.1rem;">
+                        Cliquez sur "Gérer" dans un dossier pour consulter et répondre aux messages des clients.
+                    </span>
+                </div>
+            </div>
+            {{-- Bouton pour fermer l'alerte --}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+        </div>
+    @endif
+    {{-- ══════════════════════════════════════════════════════ --}}
+
     {{-- PANEL 1 — TABLEAU DE BORD --}}
     <section class="admin-panel active" id="panel-dashboard">
         <div class="section-heading" data-aos="fade-down">
@@ -296,7 +373,27 @@
             <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="120"><div class="stat-card"><div class="stat-icon cyan"><i class="bi bi-arrow-repeat"></i></div><div><div class="stat-value">{{ $stats['dossiers_cours']??0 }}</div><div class="stat-label">En cours</div></div></div></div>
             <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="180"><div class="stat-card"><div class="stat-icon green"><i class="bi bi-check-circle"></i></div><div><div class="stat-value">{{ $stats['dossiers_valides']??0 }}</div><div class="stat-label">Validés</div></div></div></div>
             <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="240"><div class="stat-card"><div class="stat-icon red"><i class="bi bi-x-circle"></i></div><div><div class="stat-value">{{ $stats['dossiers_refuses']??0 }}</div><div class="stat-label">Refusés</div></div></div></div>
-            <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="300"><div class="stat-card"><div class="stat-icon purple"><i class="bi bi-people"></i></div><div><div class="stat-value">{{ $stats['total_users']??0 }}</div><div class="stat-label">Clients</div></div></div></div>
+
+            {{-- ══════════════════════════════════════════════════════
+                 NOUVEAU — Carte stat messages non lus
+                 S'affiche uniquement s'il y a des messages non lus
+                 Visible directement dans les statistiques du dashboard
+            ══════════════════════════════════════════════════════ --}}
+            <div class="col-6 col-md-4 col-xl-2" data-aos="fade-up" data-aos-delay="300">
+                <div class="stat-card" style="@if(isset($messagesNonLus) && $messagesNonLus > 0) border-color:#fca5a5; @endif">
+                    <div class="stat-icon" style="background:#fee2e2;color:var(--danger);">
+                        <i class="bi bi-chat-dots-fill"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" style="@if(isset($messagesNonLus) && $messagesNonLus > 0) color:var(--danger); @endif">
+                            {{ $messagesNonLus ?? 0 }}
+                        </div>
+                        <div class="stat-label">Non lus</div>
+                    </div>
+                </div>
+            </div>
+            {{-- ══════════════════════════════════════════════════════ --}}
+
         </div>
         <div class="row g-3">
             <div class="col-lg-8" data-aos="fade-up">
@@ -388,14 +485,33 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="tag-pill" style="background:#f0fdf4;color:var(--success);border-color:#bbf7d0;">
+                                    {{-- ══════════════════════════════════════════════════════
+                                         NOUVEAU — Compteur messages avec badge non lus
+                                         Si le dossier a des messages non lus pour l'admin,
+                                         on affiche le nombre en rouge pour attirer l'attention
+                                    ══════════════════════════════════════════════════════ --}}
+                                    @php
+                                        $nonLusDossier = $d->messages
+                                            ->where('receiver_id', auth()->id())
+                                            ->where('lu', false)
+                                            ->count();
+                                    @endphp
+                                    <span class="tag-pill"
+                                          style="background:{{ $nonLusDossier > 0 ? '#fee2e2' : '#f0fdf4' }};
+                                                 color:{{ $nonLusDossier > 0 ? 'var(--danger)' : 'var(--success)' }};
+                                                 border-color:{{ $nonLusDossier > 0 ? '#fca5a5' : '#bbf7d0' }};
+                                                 font-weight:{{ $nonLusDossier > 0 ? '700' : '500' }};">
                                         <i class="bi bi-chat-dots me-1"></i>{{ $d->messages->count() }}
+                                        @if($nonLusDossier > 0)
+                                            {{-- Petit indicateur "nouveau" si messages non lus --}}
+                                            <span style="font-size:.6rem; margin-left:.2rem;">● {{ $nonLusDossier }} nouveau(x)</span>
+                                        @endif
                                     </span>
+                                    {{-- ══════════════════════════════════════════════════════ --}}
                                 </td>
                                 <td><span class="badge-status badge-{{ $d->statut }}">{{ ucfirst(str_replace('_',' ',$d->statut)) }}</span></td>
                                 <td style="color:var(--muted);font-size:.78rem;">{{ $d->created_at->format('d/m/Y') }}</td>
                                 <td>
-                                    {{-- Bouton lien vers la page dédiée --}}
                                     <a href="{{ route('admin.dossiers.show', $d->id) }}" class="btn-manage">
                                         <i class="bi bi-gear-fill"></i> Gérer
                                     </a>
@@ -746,8 +862,6 @@ function togglePwd(id, btn) {
     icon.classList.toggle('bi-eye', input.type === 'password');
     icon.classList.toggle('bi-eye-slash', input.type === 'text');
 }
-
-/* Remplissage modals CRUD */
 document.addEventListener('shown.bs.modal', function(e) {
     const btn = e.relatedTarget;
     if (!btn) return;
@@ -778,7 +892,6 @@ document.addEventListener('shown.bs.modal', function(e) {
         document.getElementById('formEditInfosVisa').action = '/admin/infos-visa/'+btn.dataset.id;
     }
 });
-
 @if($errors->has('current_password') || $errors->has('password'))
     document.addEventListener('DOMContentLoaded', () => {
         new bootstrap.Modal(document.getElementById('profileModal')).show();

@@ -88,6 +88,13 @@
         .sidebar-nav-link.active { background: rgba(30,64,175,0.5); color: white; box-shadow: 0 4px 16px rgba(10,36,99,0.3); border: 1px solid rgba(30,64,175,0.4); }
         .sidebar-nav-link i { font-size: 1rem; width: 20px; text-align: center; }
         .menu-badge { background: var(--accent); color: white; font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px; margin-left: auto; }
+
+        /* ── NOUVEAU : badge rouge messages non lus sidebar ── */
+        .menu-badge-notif { background: var(--danger); color: white; font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px; margin-left: 0.3rem; }
+        /* ── NOUVEAU : bouton cloche topbar ── */
+        .topbar-notif-btn { position: relative; background: none; border: 1px solid var(--border); border-radius: 10px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; transition: all 0.2s; }
+        .topbar-notif-btn:hover { background: var(--light-bg); }
+        .topbar-notif-btn .notif-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; border: 2px solid white; }
         .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); }
         .btn-logout { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 12px; color: rgba(255,100,100,0.85); background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.25s; width: 100%; text-align: left; }
         .btn-logout:hover { background: rgba(239,68,68,0.2); color: #fca5a5; }
@@ -207,6 +214,18 @@
         </a>
     </div>
     <div class="topbar-user">
+        {{-- ══ NOUVEAU — Cloche notification topbar ══ --}}
+        {{-- Point rouge si messages non lus — clic → Mes dossiers --}}
+        @if(isset($messagesNonLus) && $messagesNonLus > 0)
+            <button class="topbar-notif-btn"
+                    title="{{ $messagesNonLus }} message(s) non lu(s)"
+                    onclick="showSection('dossiers', document.getElementById('link-dossiers'))">
+                <i class="bi bi-bell-fill" style="color:var(--warning);"></i>
+                <span class="notif-dot"></span>
+            </button>
+        @endif
+        {{-- ══════════════════════════════════════════════════════ --}}
+
         {{-- Avatar mis à jour dynamiquement via JS après changement --}}
         <img src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : asset('images/avatar.png') }}"
              class="user-avatar" alt="Avatar" id="topbarAvatarClient">
@@ -243,14 +262,20 @@
            onclick="showSection('dashboard', this); return false;">
             <i class="bi bi-speedometer2"></i> Tableau de bord
         </a>
+        {{-- ══ NOUVEAU — badge rouge messages non lus ══ --}}
         <a class="sidebar-nav-link" id="link-dossiers" href="#"
            onclick="showSection('dossiers', this); return false;">
             <i class="bi bi-folder2"></i> Mes dossiers
-            {{-- Badge avec le nombre de dossiers --}}
+            {{-- Badge or : total dossiers --}}
             @if($stats['total'] > 0)
                 <span class="menu-badge">{{ $stats['total'] }}</span>
             @endif
+            {{-- Badge rouge : messages non lus --}}
+            @if(isset($messagesNonLus) && $messagesNonLus > 0)
+                <span class="menu-badge-notif">{{ $messagesNonLus }} 💬</span>
+            @endif
         </a>
+        {{-- ══════════════════════════════════════════════════════ --}}
 
         {{-- Liens secondaires --}}
         <div class="menu-group-title">Compte</div>
@@ -299,6 +324,35 @@
             </div>
         @endif
 
+        {{-- ══ NOUVEAU — Alerte messages non lus ══ --}}
+        {{-- Visible dès connexion si admin a envoyé des messages --}}
+        @if(isset($messagesNonLus) && $messagesNonLus > 0)
+            <div class="alert alert-dismissible fade show mb-3" role="alert"
+                 style="border-radius:12px; border:none; background:#fef3c7;
+                        border-left:4px solid #f59e0b; padding:.9rem 1.1rem;">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <i class="bi bi-bell-fill" style="color:#d97706; font-size:1.1rem; flex-shrink:0;"></i>
+                    <div style="flex:1;">
+                        <strong style="color:#92400e; font-size:.9rem;">
+                            Vous avez {{ $messagesNonLus }} nouveau(x) message(s) de l'administrateur !
+                        </strong>
+                        <span style="color:#92400e; font-size:.84rem; display:block; margin-top:.1rem;">
+                            Ouvrez votre dossier concerné pour lire et répondre aux messages.
+                        </span>
+                    </div>
+                    {{-- Lien rapide vers Mes Dossiers --}}
+                    <a href="#"
+                       onclick="showSection('dossiers', document.getElementById('link-dossiers')); return false;"
+                       style="font-size:.82rem; font-weight:700; color:#92400e;
+                              text-decoration:underline; white-space:nowrap;">
+                        Voir mes dossiers →
+                    </a>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+            </div>
+        @endif
+        {{-- ══════════════════════════════════════════════════════ --}}
+
         {{-- ════════════════════════════════════════
              SECTION 1 : TABLEAU DE BORD
              Affichée par défaut au chargement
@@ -339,15 +393,32 @@
                         </div>
                     </div>
                 </div>
+                {{-- ══ NOUVEAU — Carte stat dynamique ══ --}}
+                {{-- Rouge cliquable si messages non lus, sinon Refusés normal --}}
                 <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="240">
-                    <div class="stat-card">
-                        <div class="stat-icon stat-danger"><i class="bi bi-x-circle"></i></div>
-                        <div>
-                            <div class="stat-number">{{ $stats['refuses'] }}</div>
-                            <div class="stat-label">Refusés</div>
+                    @if(isset($messagesNonLus) && $messagesNonLus > 0)
+                        <a href="#"
+                           onclick="showSection('dossiers', document.getElementById('link-dossiers')); return false;"
+                           style="text-decoration:none;">
+                            <div class="stat-card" style="border-color:#fca5a5; cursor:pointer;">
+                                <div class="stat-icon stat-danger"><i class="bi bi-chat-dots-fill"></i></div>
+                                <div>
+                                    <div class="stat-number" style="color:var(--danger);">{{ $messagesNonLus }}</div>
+                                    <div class="stat-label" style="color:var(--danger);">Messages non lus</div>
+                                </div>
+                            </div>
+                        </a>
+                    @else
+                        <div class="stat-card">
+                            <div class="stat-icon stat-danger"><i class="bi bi-x-circle"></i></div>
+                            <div>
+                                <div class="stat-number">{{ $stats['refuses'] }}</div>
+                                <div class="stat-label">Refusés</div>
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
+                {{-- ══════════════════════════════════════════════════════ --}}
             </div>
 
             {{-- Tableau des 5 derniers dossiers --}}
@@ -401,7 +472,7 @@
 
             {{-- Conseil pour les nouveaux utilisateurs --}}
             <div class="ec-alert ec-alert-info mt-4" data-aos="fade-up">
-                <i class="bi bi-info-circle-fill" style="font-size:1.1rem; flex-shrink:0;"></i>
+                <i class="bi " style="font-size:1.1rem; flex-shrink:0;"></i>
                 <div>
                     <strong>Nouveau ici ?</strong> Commencez par
                     <strong>choisir un service</strong> dans l'onglet "Mes dossiers"
@@ -429,7 +500,7 @@
                 <div class="ec-card-body">
 
                     <div class="ec-alert ec-alert-info mb-3">
-                        <i class="bi bi-info-circle-fill" style="flex-shrink:0;"></i>
+                        <i class="bi" style="flex-shrink:0;"></i>
                         <div>
                             Choisissez un service parmi ceux disponibles.
                             Notre équipe traitera votre dossier sous <strong>24h</strong>.
@@ -440,7 +511,7 @@
                         @csrf
                         <div class="row g-3 align-items-end">
                             <div class="col-md-8">
-                                <label>Choisir un service *</label>
+                                <label>Choisir un service </label>
                                 <select name="service_id"
                                         class="form-select @error('service_id') is-invalid @enderror"
                                         required>
