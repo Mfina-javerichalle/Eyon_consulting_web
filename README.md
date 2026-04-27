@@ -5,6 +5,13 @@
 
 🔗 **Site en production : [https://elyon-consulting.com](https://elyon-consulting.com)**
 
+> **identifiant**: client@elyon.test
+> **motdepasse**: AZE1234@
+
+> **identifiant**: admin@elyon.test 
+> **motdepasse**: AZER1234@  
+
+
 ---
 
 ## 📌 Présentation du projet
