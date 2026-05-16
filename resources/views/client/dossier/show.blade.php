@@ -11,9 +11,6 @@
     <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
     <style>
-        /* ═══════════════════════════════════════════
-           VARIABLES GLOBALES
-        ═══════════════════════════════════════════ */
         :root {
             --primary:       #0a2463;
             --primary-light: #1e40af;
@@ -36,7 +33,6 @@
         html { scroll-behavior: smooth; }
         body { font-family: var(--font-body); color: var(--text); background: var(--light-bg); min-height: 100vh; }
 
-        /* ── TOPBAR ── */
         .ec-topbar { position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h); background: rgba(255,255,255,0.97); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); z-index: 1000; display: flex; align-items: center; padding: 0 1.5rem; justify-content: space-between; }
         .topbar-brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
         .topbar-brand img { height: 40px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.10); }
@@ -45,10 +41,8 @@
         .topbar-user { display: flex; align-items: center; gap: 0.75rem; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
 
-        /* ── CONTENU PRINCIPAL ── */
         .main-content { padding-top: calc(var(--topbar-h) + 2rem); padding-bottom: 3rem; }
 
-        /* ── HERO DOSSIER ── */
         .dossier-hero { background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 20px; padding: 2rem; color: white; margin-bottom: 2rem; position: relative; overflow: hidden; }
         .dossier-hero::before { content: ""; position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%; }
         .dossier-hero-title { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem; }
@@ -56,7 +50,6 @@
         .back-btn { display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.88rem; font-weight: 600; transition: color 0.2s; margin-bottom: 1.25rem; }
         .back-btn:hover { color: white; }
 
-        /* ── BADGES STATUT ── */
         .status-badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.85rem; border-radius: 999px; font-size: 0.82rem; font-weight: 700; }
         .status-en_attente { background: rgba(245,158,11,0.15); color: #92400e; }
         .status-en_cours   { background: rgba(59,130,246,0.15);  color: #1d4ed8; }
@@ -64,7 +57,6 @@
         .status-refuse     { background: rgba(239,68,68,0.15);   color: #991b1b; }
         .status-badge-white { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); }
 
-        /* ── ONGLETS ── */
         .ec-tabs { display: flex; gap: 0.25rem; background: white; border-radius: 14px; padding: 0.4rem; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(10,36,99,0.05); margin-bottom: 1.75rem; flex-wrap: wrap; }
         .ec-tab-btn { flex: 1; min-width: 110px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.65rem 1rem; border-radius: 10px; font-size: 0.875rem; font-weight: 600; color: var(--muted); background: transparent; border: none; cursor: pointer; transition: all 0.22s; white-space: nowrap; }
         .ec-tab-btn:hover { background: var(--light-bg); color: var(--primary); }
@@ -75,20 +67,17 @@
         .tab-pane { display: none; }
         .tab-pane.active { display: block; }
 
-        /* ── EC CARD ── */
         .ec-card { background: white; border-radius: 18px; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(10,36,99,0.06); overflow: hidden; margin-bottom: 1.5rem; }
         .ec-card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
         .ec-card-header h3 { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--primary); margin: 0; display: flex; align-items: center; gap: 0.5rem; }
         .ec-card-body { padding: 1.5rem; }
 
-        /* ── ALERTES ── */
         .ec-alert { display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem 1.25rem; border-radius: 12px; font-size: 0.88rem; margin-bottom: 1rem; }
         .ec-alert-warning { background: rgba(245,158,11,0.1);  border: 1px solid rgba(245,158,11,0.3); color: #92400e; }
         .ec-alert-success { background: rgba(16,185,129,0.1);  border: 1px solid rgba(16,185,129,0.3); color: #065f46; }
         .ec-alert-info    { background: rgba(30,64,175,0.08);  border: 1px solid rgba(30,64,175,0.2);  color: var(--primary); }
         .ec-alert-danger  { background: rgba(239,68,68,0.08);  border: 1px solid rgba(239,68,68,0.2);  color: #991b1b; }
 
-        /* ── DOCUMENTS ── */
         .doc-item { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 0.75rem; background: #fafbfc; transition: all 0.2s; }
         .doc-item:hover { border-color: var(--primary-light); background: white; }
         .doc-item.uploaded { border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.04); }
@@ -112,7 +101,6 @@
         .btn-upload-label:hover { border-color: var(--primary); background: var(--primary-xlight); }
         .btn-upload-label.has-file { border-color: var(--success); color: var(--success); background: rgba(16,185,129,0.06); border-style: solid; }
 
-        /* ── MESSAGERIE ── */
         .chat-container { height: 380px; overflow-y: auto; padding: 1rem; background: #f8fafc; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.75rem; scroll-behavior: smooth; }
         .message-bubble { display: flex; gap: 0.6rem; max-width: 80%; }
         .message-bubble.sent     { align-self: flex-end;   flex-direction: row-reverse; }
@@ -132,12 +120,9 @@
         .chat-input:focus { border-color: var(--primary-light); background: white; box-shadow: 0 0 0 0.2rem rgba(30,64,175,0.1); }
         .chat-send-btn { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: all 0.2s; font-size: 1.1rem; }
         .chat-send-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(10,36,99,0.3); }
-
-        /* ── BOUTON SUBMIT ── */
         .btn-form-submit { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border: none; border-radius: 10px; padding: 0.5rem 1rem; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem; transition: all 0.3s; }
         .btn-form-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(10,36,99,0.25); color: white; }
 
-        /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
             .doc-item { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
             .message-bubble { max-width: 90%; }
@@ -147,7 +132,7 @@
 </head>
 <body>
 
-{{-- ════ TOPBAR ════ --}}
+{{-- TOPBAR --}}
 <header class="ec-topbar">
     <a class="topbar-brand" href="{{ route('home') }}">
         <img src="{{ asset('images/logo.jpeg') }}" alt="Elyon">
@@ -166,7 +151,7 @@
     </div>
 </header>
 
-{{-- ════ CONTENU PRINCIPAL ════ --}}
+{{-- CONTENU PRINCIPAL --}}
 <div class="main-content">
     <div class="container">
 
@@ -184,16 +169,14 @@
             </div>
         @endif
 
-        {{-- ════ HERO ════ --}}
+        {{-- HERO --}}
         <div class="dossier-hero" data-aos="fade-up">
             <a href="{{ route('client.dashboard') }}" class="back-btn">
                 <i class="bi bi-arrow-left"></i> Retour à mes dossiers
             </a>
             <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
                 <div>
-                    <h1 class="dossier-hero-title">
-                        Dossier — {{ $dossier->service->nom ?? '—' }}
-                    </h1>
+                    <h1 class="dossier-hero-title">Dossier — {{ $dossier->service->nom ?? '—' }}</h1>
                     <p class="dossier-hero-sub mb-2">
                         <i class="bi bi-geo-alt me-1"></i> {{ $dossier->service->pays ?? '—' }}
                         &nbsp;·&nbsp;
@@ -205,7 +188,6 @@
                     {{ ucfirst(str_replace('_', ' ', $dossier->statut)) }}
                 </span>
             </div>
-            {{-- Message contextuel selon le statut --}}
             @if($dossier->statut === 'en_attente')
                 <div class="mt-3 d-flex align-items-center gap-2" style="font-size:0.85rem;color:rgba(255,255,255,0.8);">
                     <i class="bi bi-clock-history"></i>
@@ -229,12 +211,7 @@
             @endif
         </div>
 
-        {{-- ════ ONGLETS ════ --}}
-        {{--
-            3 onglets : Documents | Étapes | Messages
-            L'onglet Étapes est NOUVEAU côté client
-            Le client voit les étapes en lecture seule (pas de formulaire de modification)
-        --}}
+        {{-- ONGLETS --}}
         <div class="ec-tabs" data-aos="fade-up">
             <button class="ec-tab-btn active" id="btn-tab-documents" onclick="showTab('documents', this)">
                 <i class="bi bi-file-earmark-text"></i> Documents
@@ -250,7 +227,7 @@
             </button>
         </div>
 
-        {{-- ════ ONGLET 1 — DOCUMENTS ════ --}}
+        {{-- ONGLET 1 — DOCUMENTS --}}
         <div class="tab-pane active" id="pane-documents" data-aos="fade-up">
             <div class="ec-card">
                 <div class="ec-card-header">
@@ -261,7 +238,6 @@
                     </span>
                 </div>
                 <div class="ec-card-body">
-
                     <div class="ec-alert ec-alert-info mb-3">
                         <i class="bi bi-info-circle-fill" style="flex-shrink:0;"></i>
                         <div>Envoyez chaque document requis (PDF, JPG, PNG — max 5 Mo).</div>
@@ -275,14 +251,10 @@
                             $isRefused   = $isUploaded && $uploaded->statut === 'refuse';
                             $isValidated = $isUploaded && $uploaded->statut === 'valide';
                         @endphp
-
                         <div class="doc-item {{ $isUploaded ? ($isRefused ? 'refused' : 'uploaded') : '' }}">
-
-                            {{-- Icône + infos du document --}}
                             <div class="doc-item-left">
                                 <div class="doc-icon-wrap {{ $isUploaded ? ($isRefused ? 'doc-icon-refused' : 'doc-icon-uploaded') : 'doc-icon-pending' }}">
-                                    <i class="bi bi-{{ $isUploaded ? ($isRefused ? 'x-circle-fill' : 'check-circle-fill') : 'file-earmark' }}"
-                                       style="font-size:1.1rem;"></i>
+                                    <i class="bi bi-{{ $isUploaded ? ($isRefused ? 'x-circle-fill' : 'check-circle-fill') : 'file-earmark' }}" style="font-size:1.1rem;"></i>
                                 </div>
                                 <div>
                                     <div class="doc-name">
@@ -304,7 +276,6 @@
                                             <a href="{{ asset('storage/'.$uploaded->fichier) }}" target="_blank" class="doc-file-link">
                                                 <i class="bi bi-eye"></i> Voir le fichier
                                             </a>
-                                            {{-- Suppression possible seulement si pas encore validé --}}
                                             @if($uploaded->statut !== 'valide')
                                                 <form action="{{ route('client.dossiers.documents.delete', [$dossier->id, $uploaded->id]) }}"
                                                       method="POST" class="d-inline"
@@ -317,7 +288,6 @@
                                                 </form>
                                             @endif
                                         </div>
-                                        {{-- Commentaire de refus affiché en rouge --}}
                                         @if($isRefused && $uploaded->commentaire)
                                             <div class="mt-1" style="font-size:0.78rem;color:var(--danger);">
                                                 <i class="bi bi-exclamation-circle me-1"></i>
@@ -329,8 +299,6 @@
                                     @endif
                                 </div>
                             </div>
-
-                            {{-- Formulaire d'upload (désactivé si déjà validé) --}}
                             @if(!$isValidated)
                                 <form action="{{ route('client.dossiers.documents.upload', $dossier->id) }}"
                                       method="POST" enctype="multipart/form-data"
@@ -338,19 +306,14 @@
                                       class="d-flex align-items-center gap-2 flex-shrink-0">
                                     @csrf
                                     <input type="hidden" name="document_requis_id" value="{{ $requis->id }}">
-
-                                    <label for="file{{ $requis->id }}"
-                                           class="btn-upload-label"
-                                           id="label{{ $requis->id }}">
+                                    <label for="file{{ $requis->id }}" class="btn-upload-label" id="label{{ $requis->id }}">
                                         <i class="bi bi-cloud-upload"></i>
                                         {{ $isUploaded ? 'Remplacer' : 'Envoyer' }}
                                     </label>
                                     <input type="file" id="file{{ $requis->id }}" name="fichier"
                                            hidden accept=".pdf,.jpg,.jpeg,.png,.webp"
                                            onchange="handleFileSelect(this, {{ $requis->id }})">
-
-                                    <button type="submit" class="btn-form-submit d-none"
-                                            id="submitBtn{{ $requis->id }}">
+                                    <button type="submit" class="btn-form-submit d-none" id="submitBtn{{ $requis->id }}">
                                         <i class="bi bi-send"></i> Confirmer
                                     </button>
                                 </form>
@@ -359,7 +322,6 @@
                                     <i class="bi bi-shield-check me-1"></i> Validé
                                 </span>
                             @endif
-
                         </div>
                     @endforeach
 
@@ -369,32 +331,32 @@
                             <p>Aucun document requis pour ce service.</p>
                         </div>
                     @endif
-
                 </div>
             </div>
         </div>
 
         {{-- ════ ONGLET 2 — ÉTAPES ════ --}}
         {{--
-            NOUVEAU — Le client voit ici la progression de son dossier.
-            C'est en LECTURE SEULE : seul l'admin peut modifier les statuts.
-            Les statuts possibles : en_attente | en_cours | validée
+            LECTURE SEULE pour le client.
+            IMPORTANT : la valeur ENUM dans MySQL est 'validee' (SANS accent).
+            Toutes les comparaisons utilisent 'validee' sans accent.
         --}}
         <div class="tab-pane" id="pane-etapes">
             <div class="ec-card" data-aos="fade-up">
                 <div class="ec-card-header">
                     <h3><i class="bi bi-list-check text-primary"></i> Progression de votre dossier</h3>
+                    {{-- 'validee' sans accent — valeur ENUM réelle dans MySQL --}}
                     <span style="font-size:0.82rem;color:var(--muted);">
-                        {{ $etapes->where('statut','validée')->count() }}
+                        {{ $etapes->where('statut','validee')->count() }}
                         / {{ $etapes->count() }} étape(s) validée(s)
                     </span>
                 </div>
                 <div class="ec-card-body">
 
-                    {{-- Barre de progression globale --}}
+                    {{-- Barre de progression --}}
                     @php
                         $total   = $etapes->count();
-                        $valides = $etapes->where('statut', 'validée')->count();
+                        $valides = $etapes->where('statut', 'validee')->count(); // sans accent
                         $pct     = $total > 0 ? round(($valides / $total) * 100) : 0;
                     @endphp
 
@@ -411,28 +373,31 @@
                         </div>
                     </div>
 
-                    {{-- Liste des étapes (lecture seule pour le client) --}}
+                    {{-- Liste des étapes (lecture seule) --}}
                     @forelse($etapes as $index => $dossierEtape)
 
+                        {{--
+                            Comparaisons avec 'validee' (sans accent)
+                            car c'est la valeur stockée dans MySQL ENUM
+                        --}}
                         <div style="
                             display:flex; align-items:center; gap:1rem;
                             padding:.85rem 1rem;
-                            border-left: 3px solid {{ $dossierEtape->statut === 'validée' ? 'var(--success)' : ($dossierEtape->statut === 'en_cours' ? '#3b82f6' : 'var(--border)') }};
+                            border-left: 3px solid {{ $dossierEtape->statut === 'validee' ? 'var(--success)' : ($dossierEtape->statut === 'en_cours' ? '#3b82f6' : 'var(--border)') }};
                             border-radius:0 12px 12px 0;
                             margin-bottom:.5rem;
-                            background:{{ $dossierEtape->statut === 'validée' ? 'rgba(16,185,129,.04)' : ($dossierEtape->statut === 'en_cours' ? 'rgba(59,130,246,.04)' : '#fafbfc') }};
+                            background:{{ $dossierEtape->statut === 'validee' ? 'rgba(16,185,129,.04)' : ($dossierEtape->statut === 'en_cours' ? 'rgba(59,130,246,.04)' : '#fafbfc') }};
                             transition:all .2s;
                         ">
-
                             {{-- Icône circulaire --}}
                             <div style="
                                 width:32px;height:32px;border-radius:50%;
                                 display:flex;align-items:center;justify-content:center;
                                 font-size:.8rem;font-weight:800;flex-shrink:0;
-                                background:{{ $dossierEtape->statut === 'validée' ? 'rgba(16,185,129,.15)' : ($dossierEtape->statut === 'en_cours' ? 'rgba(59,130,246,.15)' : 'var(--light-bg)') }};
-                                color:{{ $dossierEtape->statut === 'validée' ? 'var(--success)' : ($dossierEtape->statut === 'en_cours' ? '#1d4ed8' : 'var(--muted)') }};
+                                background:{{ $dossierEtape->statut === 'validee' ? 'rgba(16,185,129,.15)' : ($dossierEtape->statut === 'en_cours' ? 'rgba(59,130,246,.15)' : 'var(--light-bg)') }};
+                                color:{{ $dossierEtape->statut === 'validee' ? 'var(--success)' : ($dossierEtape->statut === 'en_cours' ? '#1d4ed8' : 'var(--muted)') }};
                             ">
-                                @if($dossierEtape->statut === 'validée')
+                                @if($dossierEtape->statut === 'validee')
                                     <i class="bi bi-check-lg"></i>
                                 @elseif($dossierEtape->statut === 'en_cours')
                                     <i class="bi bi-arrow-repeat"></i>
@@ -445,16 +410,15 @@
                             <div style="flex:1;min-width:0;">
                                 <div style="
                                     font-size:.88rem;font-weight:600;
-                                    color:{{ $dossierEtape->statut === 'validée' ? 'var(--success)' : ($dossierEtape->statut === 'en_cours' ? '#1d4ed8' : 'var(--muted)') }};
-                                    {{ $dossierEtape->statut === 'validée' ? 'text-decoration:line-through;' : '' }}
+                                    color:{{ $dossierEtape->statut === 'validee' ? 'var(--success)' : ($dossierEtape->statut === 'en_cours' ? '#1d4ed8' : 'var(--muted)') }};
+                                    {{ $dossierEtape->statut === 'validee' ? 'text-decoration:line-through;' : '' }}
                                 ">
-                                    {{-- Nom de l'étape via la relation etape --}}
                                     {{ $dossierEtape->etape->nom ?? 'Étape ' . ($index + 1) }}
                                 </div>
                             </div>
 
                             {{-- Badge statut (lecture seule) --}}
-                            @if($dossierEtape->statut === 'validée')
+                            @if($dossierEtape->statut === 'validee')
                                 <span style="display:inline-flex;align-items:center;gap:.3rem;background:rgba(16,185,129,.12);color:#065f46;font-size:.7rem;font-weight:700;padding:.18rem .55rem;border-radius:999px;white-space:nowrap;">
                                     <i class="bi bi-check-circle-fill"></i> Validée
                                 </span>
@@ -467,7 +431,6 @@
                                     <i class="bi bi-clock"></i> En attente
                                 </span>
                             @endif
-
                         </div>
 
                     @empty
@@ -481,7 +444,7 @@
             </div>
         </div>
 
-        {{-- ════ ONGLET 3 — MESSAGERIE ════ --}}
+        {{-- ONGLET 3 — MESSAGERIE --}}
         <div class="tab-pane" id="pane-messages">
             <div class="ec-card" data-aos="fade-up">
                 <div class="ec-card-header">
@@ -489,8 +452,6 @@
                     <span style="font-size:.82rem;color:var(--muted);">{{ $messages->count() }} message(s)</span>
                 </div>
                 <div class="ec-card-body">
-
-                    {{-- Fil de messages --}}
                     <div class="chat-container" id="chatContainer">
                         @if($messages->isEmpty())
                             <div class="chat-empty">
@@ -513,7 +474,6 @@
                                             {{ $isSent ? 'Vous' : ($message->expediteur->name ?? 'Équipe Elyon') }}
                                         </div>
                                         <div class="bubble-text">{{ $message->contenu }}</div>
-                                        {{-- data-utc convertit en heure locale via JS --}}
                                         <div class="bubble-time msg-time"
                                              data-utc="{{ optional($message->created_at)->toISOString() }}">
                                             {{ optional($message->created_at)->format('d/m/Y à H:i') }}
@@ -524,22 +484,18 @@
                         @endif
                     </div>
 
-                    {{-- Bouton effacer l'historique --}}
                     @if($messages->isNotEmpty())
                         <div class="d-flex justify-content-end mb-2">
                             <form action="{{ route('client.dossiers.messages.clear', $dossier->id) }}"
-                                  method="POST"
-                                  onsubmit="return confirm('Effacer tout l\'historique des messages ?');">
+                                  method="POST" onsubmit="return confirm('Effacer tout l\'historique des messages ?');">
                                 @csrf @method('DELETE')
-                                <button type="submit"
-                                        style="background:none;border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:0.35rem 0.85rem;font-size:0.78rem;font-weight:600;color:var(--danger);cursor:pointer;transition:all 0.2s;">
+                                <button type="submit" style="background:none;border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:0.35rem 0.85rem;font-size:0.78rem;font-weight:600;color:var(--danger);cursor:pointer;transition:all 0.2s;">
                                     <i class="bi bi-trash3 me-1"></i> Effacer l'historique
                                 </button>
                             </form>
                         </div>
                     @endif
 
-                    {{-- Formulaire d'envoi de message --}}
                     <form action="{{ route('client.dossiers.messages.store', $dossier->id) }}" method="POST">
                         @csrf
                         @error('contenu')
@@ -551,17 +507,13 @@
                         <div class="chat-form">
                             <textarea name="contenu" class="chat-input"
                                       placeholder="Écrivez votre message à notre équipe…"
-                                      rows="1" maxlength="1000"
-                                      required>{{ old('contenu') }}</textarea>
+                                      rows="1" maxlength="1000" required>{{ old('contenu') }}</textarea>
                             <button type="submit" class="chat-send-btn" title="Envoyer">
                                 <i class="bi bi-send-fill"></i>
                             </button>
                         </div>
-                        <div style="font-size:0.72rem;color:var(--muted);margin-top:0.4rem;">
-                            Max. 1000 caractères
-                        </div>
+                        <div style="font-size:0.72rem;color:var(--muted);margin-top:0.4rem;">Max. 1000 caractères</div>
                     </form>
-
                 </div>
             </div>
         </div>
@@ -574,9 +526,6 @@
 <script>
 AOS.init({ duration: 700, once: true, offset: 40 });
 
-/* ══════════════════════════════════════════════
-   NAVIGATION PAR ONGLETS
-══════════════════════════════════════════════ */
 function showTab(id, btn) {
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.ec-tab-btn').forEach(b => b.classList.remove('active'));
@@ -585,35 +534,22 @@ function showTab(id, btn) {
     if (id === 'messages') scrollChat();
 }
 
-/* ══════════════════════════════════════════════
-   SCROLL EN BAS DU CHAT
-══════════════════════════════════════════════ */
 function scrollChat() {
     const c = document.getElementById('chatContainer');
     if (c) requestAnimationFrame(() => { c.scrollTop = c.scrollHeight; });
 }
 
-/* ══════════════════════════════════════════════
-   CONVERSION DES DATES UTC → HEURE LOCALE
-   Corrige le décalage entre la BDD (UTC) et
-   le fuseau horaire local du navigateur
-══════════════════════════════════════════════ */
 function convertirDates() {
     document.querySelectorAll('.msg-time').forEach(el => {
         const utc = el.getAttribute('data-utc');
         if (!utc) return;
-        const date = new Date(utc);
-        el.textContent = date.toLocaleString('fr-FR', {
+        el.textContent = new Date(utc).toLocaleString('fr-FR', {
             day: '2-digit', month: '2-digit', year: 'numeric',
             hour: '2-digit', minute: '2-digit'
         });
     });
 }
 
-/* ══════════════════════════════════════════════
-   GESTION SÉLECTION FICHIER POUR L'UPLOAD
-   Met à jour le label et affiche le bouton Confirmer
-══════════════════════════════════════════════ */
 function handleFileSelect(input, docId) {
     const label     = document.getElementById('label' + docId);
     const submitBtn = document.getElementById('submitBtn' + docId);
@@ -626,9 +562,6 @@ function handleFileSelect(input, docId) {
     }
 }
 
-/* ══════════════════════════════════════════════
-   AUTO-RESIZE TEXTAREA
-══════════════════════════════════════════════ */
 const chatInput = document.querySelector('.chat-input');
 if (chatInput) {
     chatInput.addEventListener('input', function() {
@@ -636,19 +569,15 @@ if (chatInput) {
         this.style.height = Math.min(this.scrollHeight, 120) + 'px';
     });
     chatInput.addEventListener('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-            this.closest('form').submit();
-        }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') this.closest('form').submit();
     });
 }
 
-/* ── Au chargement ── */
 document.addEventListener('DOMContentLoaded', () => {
     scrollChat();
     convertirDates();
 });
 
-/* ── Ouvrir le bon onglet selon l'URL hash ── */
 const hash = window.location.hash;
 if (hash === '#etapes')   showTab('etapes',   document.getElementById('btn-tab-etapes'));
 if (hash === '#messages') showTab('messages', document.getElementById('btn-tab-messages'));

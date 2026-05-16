@@ -39,7 +39,7 @@ class AdminController extends Controller
      */
     public function dashboard()
     {
-        // ── Statistiques rapides pour les cartes en haut
+        // Statistiques rapides pour les cartes en haut
         $stats = [
             'total_dossiers'   => Dossier::count(),
             'dossiers_attente' => Dossier::where('statut', 'en_attente')->count(),
@@ -48,13 +48,13 @@ class AdminController extends Controller
             'dossiers_refuses' => Dossier::where('statut', 'refuse')->count(),
         ];
 
-        // ── Nombre de messages non lus reçus par cet admin
+        // Nombre de messages non lus reçus par cet admin
         // Utilisé pour le badge rouge dans la sidebar et la topbar
         $messagesNonLus = Message::where('receiver_id', Auth::id())
                                   ->where('lu', false)
                                   ->count();
 
-        // ── Données pour les panels
+        // Données pour les panels
         $dossiers  = Dossier::with(['user', 'service', 'documents', 'messages'])->latest()->get();
         $users     = User::with('dossiers')->latest()->get();
         $services  = Service::all();
@@ -89,10 +89,8 @@ class AdminController extends Controller
      * Contient 4 onglets : Statut | Documents | Étapes | Messages
      *
      * LOGIQUE ÉTAPES :
-     * On cherche d'abord dans dossier_etapes (les étapes propres au dossier).
-     * Si la table est vide pour ce dossier (dossiers créés avant l'ajout de cette
-     * fonctionnalité), on les crée automatiquement depuis les étapes du service,
-     * exactement comme storeDossier() le fait à la création d'un nouveau dossier.
+     * Si dossier_etapes est vide pour ce dossier (dossiers créés avant
+     * l'implémentation), on copie automatiquement les étapes du service.
      *
      * @param  Dossier  $dossier  — injecté via Route Model Binding
      */
@@ -101,13 +99,13 @@ class AdminController extends Controller
         // Charge toutes les relations nécessaires en une seule requête
         $dossier->load([
             'user',
-            'service.documentsRequis', // docs requis définis pour le service
-            'service.etapes',          // étapes définies pour le service (table etapes)
-            'documents',               // docs uploadés par le client
-            'messages.expediteur',     // messages avec l'expéditeur
+            'service.documentsRequis',
+            'service.etapes',
+            'documents',
+            'messages.expediteur',
         ]);
 
-        // ── Construction du tableau documents requis + statut upload
+        // Construction du tableau documents requis + statut upload
         $documentsAvecStatut = $dossier->service->documentsRequis->map(function ($requis) use ($dossier) {
             return [
                 'requis'   => $requis,
@@ -118,21 +116,13 @@ class AdminController extends Controller
         // ══════════════════════════════════════════════════════════
         //  ÉTAPES — CRÉATION AUTOMATIQUE SI MANQUANTES
         //
-        //  Pourquoi ce code existe ?
-        //  Les dossiers existants dans la BDD ont été créés AVANT que la
-        //  fonctionnalité dossier_etapes soit implémentée. Résultat : la
-        //  table dossier_etapes est vide pour ces anciens dossiers.
-        //
-        //  Solution : dès que l'admin ouvre un dossier sans étapes,
-        //  on les copie automatiquement depuis les étapes du service.
-        //  Après cela, les étapes apparaissent et peuvent être modifiées.
+        //  Les dossiers existants n'ont pas de lignes dans dossier_etapes
+        //  si cette table a été ajoutée après leur création.
+        //  On les copie automatiquement depuis les étapes du service.
         // ══════════════════════════════════════════════════════════
         if ($dossier->etapes()->count() === 0) {
-
-            // Récupère les étapes du service, triées par ordre
             $etapesDuService = $dossier->service->etapes->sortBy('ordre');
 
-            // Copie chaque étape dans dossier_etapes avec statut initial 'en_attente'
             foreach ($etapesDuService as $etape) {
                 DossierEtape::create([
                     'dossier_id' => $dossier->id,
@@ -142,18 +132,16 @@ class AdminController extends Controller
             }
         }
 
-        // Récupère les étapes du dossier (maintenant garanties non vides)
-        // triées par l'ordre défini dans la table etapes
+        // Récupère les étapes du dossier triées par ordre
         $etapes = $dossier->etapes()
-            ->with('etape')          // charge nom + ordre depuis la table etapes
+            ->with('etape')
             ->get()
-            ->sortBy('etape.ordre'); // tri par ordre croissant
+            ->sortBy('etape.ordre');
 
-        // ── Messages triés du plus ancien au plus récent
+        // Messages triés du plus ancien au plus récent
         $messages = $dossier->messages;
 
-        // ── Marquer comme lus les messages non lus reçus par l'admin
-        // (dès qu'il ouvre la page du dossier)
+        // Marquer comme lus les messages non lus reçus par l'admin
         Message::where('dossier_id', $dossier->id)
                ->where('receiver_id', Auth::id())
                ->where('lu', false)
@@ -192,19 +180,22 @@ class AdminController extends Controller
 
     /**
      * Met à jour le statut d'une étape spécifique d'un dossier.
-     * Valeurs acceptées : en_attente, en_cours, validée
      *
-     * @param  Dossier       $dossier       — le dossier parent
-     * @param  DossierEtape  $dossierEtape  — la ligne dossier_etapes à modifier
+     * IMPORTANT : la colonne statut dans dossier_etapes est définie comme
+     * ENUM('en_attente','en_cours','validee') SANS accent dans MySQL.
+     * On utilise donc 'validee' (sans accent) partout dans le code.
+     *
+     * @param  Dossier       $dossier
+     * @param  DossierEtape  $dossierEtape
      */
     public function updateEtape(Request $request, Dossier $dossier, DossierEtape $dossierEtape)
     {
         // Sécurité : l'étape doit appartenir à CE dossier
-        // (empêche de modifier l'étape d'un autre dossier via l'URL)
         abort_if($dossierEtape->dossier_id !== $dossier->id, 403, 'Étape invalide.');
 
+        // Valeurs ENUM exactes de la BDD : en_attente, en_cours, validee (sans accent)
         $request->validate([
-            'statut' => 'required|in:en_attente,en_cours,validée',
+            'statut' => 'required|in:en_attente,en_cours,validee',
         ]);
 
         $dossierEtape->update(['statut' => $request->statut]);
