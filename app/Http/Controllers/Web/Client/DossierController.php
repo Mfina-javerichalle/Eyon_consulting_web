@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Client;
 use App\Http\Controllers\Controller;
 use App\Models\Dossier;
 use App\Models\DossierDocument;
+use App\Models\DossierEtape;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -44,6 +45,7 @@ class DossierController extends Controller
         // Charge toutes les relations nécessaires en une seule requête
         $dossier->load([
             'service.documentsRequis', // les documents requis du service
+            'service.etapes',          // les étapes définies pour le service
             'documents.documentRequis', // les docs uploadés avec leur type
             'messages.expediteur',      // les messages avec l'expéditeur
         ]);
@@ -57,8 +59,30 @@ class DossierController extends Controller
             ];
         });
 
-        // ── Chargement des étapes du dossier (lecture seule côté client)
-        // Triées par l'ordre défini dans la table etapes
+        // ══════════════════════════════════════════════════════════
+        //  ÉTAPES — CRÉATION AUTOMATIQUE SI MANQUANTES
+        //
+        //  Les dossiers créés avant l'implémentation de dossier_etapes
+        //  n'ont aucune ligne dans cette table. On les crée automatiquement
+        //  depuis les étapes du service, comme storeDossier() le fait
+        //  pour les nouveaux dossiers.
+        // ══════════════════════════════════════════════════════════
+        if ($dossier->etapes()->count() === 0) {
+
+            // Récupère les étapes du service triées par ordre
+            $etapesDuService = $dossier->service->etapes->sortBy('ordre');
+
+            // Crée une ligne dans dossier_etapes pour chaque étape
+            foreach ($etapesDuService as $etape) {
+                DossierEtape::create([
+                    'dossier_id' => $dossier->id,
+                    'etape_id'   => $etape->id,
+                    'statut'     => 'en_attente',
+                ]);
+            }
+        }
+
+        // Charge les étapes du dossier triées par ordre
         $etapes = $dossier->etapes()
             ->with('etape')
             ->get()
