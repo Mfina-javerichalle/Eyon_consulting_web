@@ -5,12 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Modèle DossierEtape
+ * ============================================================
+ * Représente une ligne dans la table dossier_etapes.
+ * Chaque dossier hérite automatiquement des étapes de son
+ * service au moment de sa création (statut = 'en_attente').
+ *
+ * Table    : dossier_etapes
+ * Colonnes : id, dossier_id, etape_id, statut, updated_at
+ * ============================================================
+ */
 class DossierEtape extends Model
 {
     use HasFactory;
 
     /**
-     * Les champs que l'on peut remplir en masse
+     * Colonnes autorisées à être remplies en masse.
+     * (protection contre les attaques "mass assignment")
      */
     protected $fillable = [
         'dossier_id',
@@ -18,8 +30,12 @@ class DossierEtape extends Model
         'statut',
     ];
 
+    // ──────────────────────────────────────────────────────────
+    //  RELATIONS
+    // ──────────────────────────────────────────────────────────
+
     /**
-     * Une étape de dossier appartient à un dossier
+     * Une étape de dossier appartient à un dossier.
      * Relation : DossierEtape → belongsTo → Dossier
      */
     public function dossier()
@@ -28,8 +44,9 @@ class DossierEtape extends Model
     }
 
     /**
-     * Une étape de dossier est liée à une étape
+     * Une étape de dossier est liée à la définition d'une étape.
      * Relation : DossierEtape → belongsTo → Etape
+     * Permet de récupérer le nom et l'ordre via $dossierEtape->etape->nom
      */
     public function etape()
     {

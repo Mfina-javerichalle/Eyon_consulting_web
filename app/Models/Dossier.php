@@ -5,12 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Modèle Dossier
+ * ============================================================
+ * Un dossier est créé par un client pour un service donné.
+ * Il contient des documents, des étapes et des messages.
+ *
+ * Table    : dossiers
+ * Colonnes : id, user_id, service_id, statut,
+ *            date_creation, updated_at
+ * ============================================================
+ */
 class Dossier extends Model
 {
     use HasFactory;
 
     /**
-     * Les champs que l'on peut remplir en masse
+     * Colonnes autorisées à être remplies en masse.
      */
     protected $fillable = [
         'user_id',
@@ -18,8 +29,12 @@ class Dossier extends Model
         'statut',
     ];
 
+    // ──────────────────────────────────────────────────────────
+    //  RELATIONS
+    // ──────────────────────────────────────────────────────────
+
     /**
-     * Un dossier appartient à un client
+     * Le client propriétaire du dossier.
      * Relation : Dossier → belongsTo → User
      */
     public function user()
@@ -28,7 +43,7 @@ class Dossier extends Model
     }
 
     /**
-     * Un dossier est lié à un service
+     * Le service associé au dossier (ex: Visa étudiant — France).
      * Relation : Dossier → belongsTo → Service
      */
     public function service()
@@ -37,7 +52,7 @@ class Dossier extends Model
     }
 
     /**
-     * Un dossier contient plusieurs documents uploadés par le client
+     * Les documents uploadés par le client pour ce dossier.
      * Relation : Dossier → hasMany → DossierDocument
      */
     public function documents()
@@ -46,8 +61,9 @@ class Dossier extends Model
     }
 
     /**
-     * Un dossier contient plusieurs étapes de traitement
+     * Les étapes du dossier (copiées depuis le service à la création).
      * Relation : Dossier → hasMany → DossierEtape
+     * Triées par ordre de l'étape parente.
      */
     public function etapes()
     {
@@ -55,8 +71,8 @@ class Dossier extends Model
     }
 
     /**
-     * Un dossier contient plusieurs messages client ↔ admin
-     * Triés du plus ancien au plus récent
+     * Les messages échangés dans ce dossier (client ↔ admin).
+     * Triés du plus ancien au plus récent.
      * Relation : Dossier → hasMany → Message
      */
     public function messages()
@@ -65,28 +81,35 @@ class Dossier extends Model
                     ->orderBy('created_at');
     }
 
+    // ──────────────────────────────────────────────────────────
+    //  MÉTHODES UTILITAIRES
+    // ──────────────────────────────────────────────────────────
+
     /**
-     * Vérifie si tous les documents obligatoires ont été uploadés
-     * Utile pour savoir si le dossier est complet
+     * Vérifie si tous les documents obligatoires ont été uploadés.
+     * Utile pour indiquer si un dossier est complet.
+     *
+     * @return bool
      */
     public function estComplet(): bool
     {
-        // Récupérer les IDs des documents obligatoires du service
-        $documentsObligatoires = $this->service
+        // IDs des documents obligatoires du service
+        $obligatoires = $this->service
             ->documentsRequis()
             ->where('obligatoire', true)
             ->pluck('id');
 
-        // Récupérer les IDs des documents déjà uploadés pour ce dossier
-        $documentsUploades = $this->documents()
-            ->pluck('document_requis_id');
+        // IDs des documents déjà uploadés pour ce dossier
+        $uploades = $this->documents()->pluck('document_requis_id');
 
-        // Le dossier est complet si tous les documents obligatoires sont uploadés
-        return $documentsObligatoires->diff($documentsUploades)->isEmpty();
+        // Complet si aucun document obligatoire ne manque
+        return $obligatoires->diff($uploades)->isEmpty();
     }
 
     /**
-     * Compte les documents uploadés pour ce dossier
+     * Compte les documents uploadés pour ce dossier.
+     *
+     * @return int
      */
     public function nombreDocumentsUploades(): int
     {
@@ -94,13 +117,17 @@ class Dossier extends Model
     }
 
     /**
-     * Compte les messages non lus pour un utilisateur donné
+     * Compte les messages non lus pour un utilisateur donné.
+     * Utilisé pour afficher le badge de notification.
+     *
+     * @param  int  $userId  — ID de l'utilisateur destinataire
+     * @return int
      */
     public function messagesNonLus(int $userId): int
     {
         return $this->messages()
                     ->where('receiver_id', $userId)
-                    ->whereNull('read_at')
+                    ->where('lu', false)
                     ->count();
     }
 }

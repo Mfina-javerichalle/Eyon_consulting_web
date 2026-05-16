@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Dossier;
+use App\Models\DossierEtape;
 use App\Models\Service;
 use App\Models\DossierDocument;
 use App\Models\Message;
@@ -28,7 +29,7 @@ class ClientController extends Controller
                 'service',
                 'documents',
                 'messages',
-                'messages.expediteur', // ← CORRECTION : charge l'expéditeur de chaque message
+                'messages.expediteur', // charge l'expéditeur de chaque message
                                        // nécessaire pour afficher le nom et le rôle dans la vue
             ])
             ->latest()
@@ -45,9 +46,8 @@ class ClientController extends Controller
             'refuses'  => $dossiers->where('statut', 'refuse')->count(),
         ];
 
-        // ── Compter les messages non lus reçus par le client ──
-        // Filtre : receiver_id = client connecté + lu = false
-        // Utilisé pour afficher la notification dans la vue
+        // Compter les messages non lus reçus par le client
+        // Utilisé pour afficher le badge de notification dans la vue
         $messagesNonLus = Message::where('receiver_id', auth()->id())
                                  ->where('lu', false)
                                  ->count();
@@ -66,7 +66,7 @@ class ClientController extends Controller
             'service_id' => 'required|exists:services,id',
         ]);
 
-        // Vérifier si le client a déjà un dossier pour ce service
+        // Vérifie si le client a déjà un dossier pour ce service
         // Un client ne peut pas avoir deux dossiers pour le même service
         $exists = Dossier::where('user_id', auth()->id())
             ->where('service_id', $request->service_id)
@@ -77,11 +77,33 @@ class ClientController extends Controller
         }
 
         // Crée le dossier avec le statut "en_attente" par défaut
-        Dossier::create([
+        $dossier = Dossier::create([
             'user_id'    => auth()->id(),
             'service_id' => $request->service_id,
             'statut'     => 'en_attente',
         ]);
+
+        // ══════════════════════════════════════════════════════════
+        //  COPIE DES ÉTAPES DU SERVICE DANS DOSSIER_ETAPES
+        //
+        //  Selon le cahier des charges (règle 7) :
+        //  "À la création d'un dossier, les étapes du service sont
+        //   automatiquement copiées dans dossier_etapes avec statut = en_attente"
+        //
+        //  On récupère les étapes du service (triées par ordre),
+        //  et on crée une ligne dans dossier_etapes pour chacune.
+        //  Ces lignes pourront ensuite être mises à jour par l'admin
+        //  (en_attente → en_cours → validée).
+        // ══════════════════════════════════════════════════════════
+        $service = Service::with('etapes')->find($request->service_id);
+
+        foreach ($service->etapes as $etape) {
+            DossierEtape::create([
+                'dossier_id' => $dossier->id,
+                'etape_id'   => $etape->id,
+                'statut'     => 'en_attente', // statut initial pour toutes les étapes
+            ]);
+        }
 
         return back()->with('success', 'Dossier créé avec succès. Vous pouvez maintenant uploader vos documents.');
     }

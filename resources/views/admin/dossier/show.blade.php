@@ -14,6 +14,9 @@
     <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
     <style>
+        /* ═══════════════════════════════════════
+           VARIABLES GLOBALES
+        ═══════════════════════════════════════ */
         :root {
             --primary:        #0a2463;
             --primary-light:  #1e40af;
@@ -58,54 +61,26 @@
         .topbar-btn:hover { background: var(--primary); color: #fff; }
         .topbar-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
 
-        /* ── MAIN ── */
+        /* ── CONTENU PRINCIPAL ── */
         .main-content { padding-top: calc(var(--topbar-h) + 2rem); padding-bottom: 3rem; }
 
         /* ── HERO DOSSIER ── */
         .dossier-hero {
             background: linear-gradient(135deg, var(--dark) 0%, #1a3a6b 100%);
-            border-radius: 22px;
-            padding: 2rem 2.5rem;
-            color: white;
-            margin-bottom: 2rem;
-            position: relative;
-            overflow: hidden;
+            border-radius: 22px; padding: 2rem 2.5rem;
+            color: white; margin-bottom: 2rem;
+            position: relative; overflow: hidden;
         }
-        .dossier-hero::before {
-            content: "";
-            position: absolute; top: -80px; right: -80px;
-            width: 260px; height: 260px;
-            background: rgba(255,255,255,0.04);
-            border-radius: 50%;
-        }
-        .dossier-hero::after {
-            content: "";
-            position: absolute; bottom: -40px; left: 30%;
-            width: 180px; height: 180px;
-            background: rgba(240,165,0,0.06);
-            border-radius: 50%;
-        }
-        .back-btn {
-            display: inline-flex; align-items: center; gap: 0.5rem;
-            color: rgba(255,255,255,0.7); text-decoration: none;
-            font-size: 0.85rem; font-weight: 600;
-            transition: color 0.2s; margin-bottom: 1.25rem;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.12);
-            padding: 0.35rem 0.85rem; border-radius: 8px;
-        }
+        .dossier-hero::before { content: ""; position: absolute; top: -80px; right: -80px; width: 260px; height: 260px; background: rgba(255,255,255,0.04); border-radius: 50%; }
+        .back-btn { display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: color 0.2s; margin-bottom: 1.25rem; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); padding: 0.35rem 0.85rem; border-radius: 8px; }
         .back-btn:hover { color: white; background: rgba(255,255,255,0.14); }
         .dossier-hero-title { font-family: var(--font-display); font-size: 1.65rem; font-weight: 800; margin-bottom: 0.4rem; }
         .dossier-hero-sub { font-size: 0.88rem; color: rgba(255,255,255,0.65); }
-
-        /* ── ADMIN BADGE ── */
-        .admin-badge {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            background: rgba(240,165,0,0.18); color: var(--accent-light);
-            border: 1px solid rgba(240,165,0,0.25);
-            font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.65rem;
-            border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em;
-        }
+        .admin-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(240,165,0,0.18); color: var(--accent-light); border: 1px solid rgba(240,165,0,0.25); font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .meta-grid { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1rem; }
+        .meta-item { display: flex; flex-direction: column; gap: 0.1rem; }
+        .meta-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.45); }
+        .meta-value { font-size: 0.9rem; font-weight: 600; color: rgba(255,255,255,0.9); }
 
         /* ── BADGES STATUT ── */
         .status-badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.28rem 0.8rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; }
@@ -116,22 +91,9 @@
         .status-refuse     { background: rgba(239,68,68,0.12);   color: #991b1b; }.status-refuse::before     { background: #ef4444; }
         .status-badge-white { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25); }
 
-        /* ── META INFO ── */
-        .meta-grid { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1rem; }
-        .meta-item { display: flex; flex-direction: column; gap: 0.1rem; }
-        .meta-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.45); }
-        .meta-value { font-size: 0.9rem; font-weight: 600; color: rgba(255,255,255,0.9); }
-
         /* ── ONGLETS ── */
         .ec-tabs { display: flex; gap: 0.25rem; background: white; border-radius: 14px; padding: 0.4rem; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(10,36,99,0.05); margin-bottom: 1.75rem; flex-wrap: wrap; }
-        .ec-tab-btn {
-            flex: 1; min-width: 120px;
-            display: flex; align-items: center; justify-content: center; gap: 0.45rem;
-            padding: 0.65rem 1rem; border-radius: 10px;
-            font-size: 0.875rem; font-weight: 600;
-            color: var(--muted); background: transparent; border: none; cursor: pointer;
-            transition: all 0.22s; white-space: nowrap;
-        }
+        .ec-tab-btn { flex: 1; min-width: 120px; display: flex; align-items: center; justify-content: center; gap: 0.45rem; padding: 0.65rem 1rem; border-radius: 10px; font-size: 0.875rem; font-weight: 600; color: var(--muted); background: transparent; border: none; cursor: pointer; transition: all 0.22s; white-space: nowrap; }
         .ec-tab-btn:hover { background: var(--light-bg); color: var(--primary); }
         .ec-tab-btn.active { background: var(--primary); color: #fff; box-shadow: 0 4px 14px rgba(10,36,99,0.25); }
         .ec-tab-count { font-size: 0.68rem; font-weight: 700; padding: 0.1rem 0.45rem; border-radius: 999px; }
@@ -153,28 +115,17 @@
         .ec-alert-info    { background: rgba(30,64,175,0.07);   border: 1px solid rgba(30,64,175,0.18);  color: var(--primary); }
         .ec-alert-danger  { background: rgba(239,68,68,0.07);   border: 1px solid rgba(239,68,68,0.18);  color: #991b1b; }
 
-        /* ── STATUT FORM ── */
-        .statut-form-card { background: linear-gradient(135deg, #f8fafc, white); border-radius: 14px; border: 1.5px solid var(--border); padding: 1.5rem; margin-bottom: 1.25rem; }
-        .statut-guide { display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 1rem; background: var(--light-bg); border-radius: 12px; margin-top: 1.25rem; }
-        .statut-guide-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; color: var(--muted); }
-
         /* ── DOCUMENTS ── */
-        .doc-item {
-            display: flex; align-items: flex-start; justify-content: space-between;
-            gap: 1rem; padding: 1rem 1.25rem;
-            border: 1.5px solid var(--border); border-radius: 14px;
-            margin-bottom: 0.75rem; background: #fafbfc;
-            transition: all 0.2s;
-        }
+        .doc-item { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1rem 1.25rem; border: 1.5px solid var(--border); border-radius: 14px; margin-bottom: 0.75rem; background: #fafbfc; transition: all 0.2s; }
         .doc-item:hover { border-color: var(--primary-xlight); background: white; box-shadow: 0 2px 12px rgba(10,36,99,0.06); }
         .doc-item.doc-valide  { border-color: rgba(16,185,129,0.3);  background: rgba(16,185,129,0.03); }
         .doc-item.doc-refuse  { border-color: rgba(239,68,68,0.3);   background: rgba(239,68,68,0.03);  }
         .doc-item.doc-missing { border-style: dashed; background: #fafbfc; opacity: 0.7; }
         .doc-icon-wrap { width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.15rem; }
-        .doc-icon-pending   { background: rgba(100,116,139,0.1); color: var(--muted); }
-        .doc-icon-valide    { background: rgba(16,185,129,0.15);  color: var(--success); }
-        .doc-icon-refuse    { background: rgba(239,68,68,0.1);    color: var(--danger); }
-        .doc-icon-attente   { background: rgba(245,158,11,0.12);  color: var(--warning); }
+        .doc-icon-pending  { background: rgba(100,116,139,0.1); color: var(--muted); }
+        .doc-icon-valide   { background: rgba(16,185,129,0.15);  color: var(--success); }
+        .doc-icon-refuse   { background: rgba(239,68,68,0.1);    color: var(--danger); }
+        .doc-icon-attente  { background: rgba(245,158,11,0.12);  color: var(--warning); }
         .doc-name { font-size: 0.9rem; font-weight: 600; color: var(--text); }
         .doc-meta { font-size: 0.75rem; color: var(--muted); margin-top: 0.15rem; }
         .doc-tag { display: inline-block; font-size: 0.68rem; padding: 0.1rem 0.45rem; border-radius: 999px; font-weight: 700; margin-left: 0.3rem; }
@@ -197,14 +148,7 @@
         .btn-doc-delete:hover  { background: var(--danger); color: #fff; }
 
         /* ── MESSAGERIE ── */
-        .chat-container {
-            height: 400px; overflow-y: auto;
-            padding: 1.1rem; background: #f8fafc;
-            border-radius: 14px; border: 1px solid var(--border);
-            margin-bottom: 1rem;
-            display: flex; flex-direction: column; gap: 0.8rem;
-            scroll-behavior: smooth;
-        }
+        .chat-container { height: 400px; overflow-y: auto; padding: 1.1rem; background: #f8fafc; border-radius: 14px; border: 1px solid var(--border); margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.8rem; scroll-behavior: smooth; }
         .chat-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--muted); text-align: center; gap: 0.5rem; }
         .chat-empty i { font-size: 2.5rem; opacity: 0.25; }
         .message-bubble { display: flex; gap: 0.55rem; max-width: 82%; }
@@ -214,58 +158,22 @@
         .bubble-content { display: flex; flex-direction: column; }
         .bubble-name { font-size: 0.7rem; font-weight: 700; color: var(--muted); margin-bottom: 0.22rem; }
         .message-bubble.sent .bubble-name { text-align: right; }
-        .bubble-text {
-            padding: 0.7rem 0.95rem; border-radius: 16px;
-            font-size: 0.875rem; line-height: 1.55; word-break: break-word;
-        }
-        .message-bubble.sent .bubble-text {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white; border-radius: 16px 4px 16px 16px;
-        }
-        .message-bubble.received .bubble-text {
-            background: white; color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: 4px 16px 16px 16px;
-        }
+        .bubble-text { padding: 0.7rem 0.95rem; border-radius: 16px; font-size: 0.875rem; line-height: 1.55; word-break: break-word; }
+        .message-bubble.sent .bubble-text { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border-radius: 16px 4px 16px 16px; }
+        .message-bubble.received .bubble-text { background: white; color: var(--text); border: 1px solid var(--border); border-radius: 4px 16px 16px 16px; }
         .bubble-time { font-size: 0.67rem; color: var(--muted); margin-top: 0.22rem; }
         .message-bubble.sent .bubble-time { text-align: right; }
-
-        /* ── ZONE RÉPONSE ── */
         .reply-zone { background: white; border-radius: 14px; border: 1.5px solid var(--border); padding: 1.1rem 1.25rem; }
         .reply-zone-header { font-size: 0.78rem; font-weight: 700; color: var(--primary); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem; }
         .chat-form { display: flex; gap: 0.65rem; align-items: flex-end; }
-        .chat-input {
-            flex: 1; border: 1.5px solid var(--border); border-radius: 12px;
-            padding: 0.7rem 1rem; font-family: var(--font-body); font-size: 0.88rem;
-            resize: none; min-height: 48px; max-height: 120px;
-            outline: none; transition: all 0.22s; background: #fafbfc;
-        }
+        .chat-input { flex: 1; border: 1.5px solid var(--border); border-radius: 12px; padding: 0.7rem 1rem; font-family: var(--font-body); font-size: 0.88rem; resize: none; min-height: 48px; max-height: 120px; outline: none; transition: all 0.22s; background: #fafbfc; }
         .chat-input:focus { border-color: var(--primary-light); background: white; box-shadow: 0 0 0 3px rgba(30,64,175,0.08); }
-        .chat-send-btn {
-            width: 48px; height: 48px; border-radius: 12px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            border: none; color: white;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; flex-shrink: 0; font-size: 1.05rem; transition: all 0.2s;
-        }
+        .chat-send-btn { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 1.05rem; transition: all 0.2s; }
         .chat-send-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(10,36,99,0.3); }
-
-        /* ── DANGER ZONE ── */
-        .danger-zone {
-            display: flex; align-items: center; justify-content: space-between;
-            flex-wrap: wrap; gap: 0.75rem;
-            background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.2);
-            border-radius: 12px; padding: 0.9rem 1.1rem; margin-top: 0.75rem;
-        }
+        .danger-zone { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px; padding: 0.9rem 1.1rem; margin-top: 0.75rem; }
         .danger-zone-label { font-size: 0.82rem; font-weight: 600; color: #991b1b; }
         .danger-zone-sub { font-size: 0.73rem; color: #dc2626; }
-        .btn-clear-msgs {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            background: rgba(239,68,68,0.1); color: var(--danger);
-            border: 1px solid rgba(239,68,68,0.25); border-radius: 8px;
-            padding: 0.4rem 0.9rem; font-size: 0.8rem; font-weight: 600;
-            cursor: pointer; transition: all 0.2s;
-        }
+        .btn-clear-msgs { display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.25); border-radius: 8px; padding: 0.4rem 0.9rem; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
         .btn-clear-msgs:hover { background: var(--danger); color: white; border-color: var(--danger); }
 
         /* ── RÉSUMÉ ── */
@@ -273,6 +181,11 @@
         .resume-row:last-child { border-bottom: none; padding-bottom: 0; }
         .resume-label { color: var(--muted); }
         .resume-value { font-weight: 600; }
+
+        /* ── STATUT FORM ── */
+        .statut-form-card { background: linear-gradient(135deg, #f8fafc, white); border-radius: 14px; border: 1.5px solid var(--border); padding: 1.5rem; margin-bottom: 1.25rem; }
+        .statut-guide { display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 1rem; background: var(--light-bg); border-radius: 12px; margin-top: 1.25rem; }
+        .statut-guide-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; color: var(--muted); }
 
         /* ── MODAL ── */
         .modal-content { border-radius: 18px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.18); overflow: hidden; }
@@ -288,18 +201,14 @@
         .btn-modal-cancel:hover { background: var(--light-bg); }
         .btn-modal-confirm { background: var(--danger); color: white; border: none; border-radius: 10px; padding: 0.55rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s; }
         .btn-modal-confirm:hover { background: #b91c1c; }
-
-        /* ── INLINE FORM ── */
         .inline-form { display: inline; }
 
         /* ── MOBILE ── */
         @media (max-width: 768px) {
             .dossier-hero { padding: 1.5rem; }
             .dossier-hero-title { font-size: 1.35rem; }
-            .meta-grid { gap: 1rem; }
             .doc-item { flex-direction: column; }
             .message-bubble { max-width: 92%; }
-            .ec-tabs { gap: 0.15rem; }
             .ec-tab-btn { font-size: 0.8rem; padding: 0.55rem 0.75rem; min-width: 0; }
         }
     </style>
@@ -329,7 +238,7 @@
 <div class="main-content">
     <div class="container">
 
-        {{-- Flash --}}
+        {{-- Flash messages --}}
         @if(session('success'))
             <div class="ec-alert ec-alert-success mb-3" data-aos="fade-down">
                 <i class="bi bi-check-circle-fill" style="flex-shrink:0;font-size:1rem;"></i>
@@ -385,6 +294,10 @@
                     <span class="meta-value">{{ $dossier->documents->count() }} / {{ $documentsAvecStatut->count() }}</span>
                 </div>
                 <div class="meta-item">
+                    <span class="meta-label">Étapes</span>
+                    <span class="meta-value">{{ $etapes->where('statut','validée')->count() }} / {{ $etapes->count() }} validée(s)</span>
+                </div>
+                <div class="meta-item">
                     <span class="meta-label">Messages</span>
                     <span class="meta-value">{{ $messages->count() }}</span>
                 </div>
@@ -396,6 +309,10 @@
         </div>
 
         {{-- ════ ONGLETS ════ --}}
+        {{--
+            4 onglets : Statut | Documents | Étapes | Messages
+            Le bouton Étapes est nouveau — il affiche le panneau pane-etapes
+        --}}
         <div class="ec-tabs" data-aos="fade-up">
             <button class="ec-tab-btn active" id="btn-tab-statut" onclick="showTab('statut', this)">
                 <i class="bi bi-gear-fill"></i> Statut
@@ -404,8 +321,12 @@
                 <i class="bi bi-file-earmark-arrow-up"></i> Documents
                 <span class="ec-tab-count">{{ $dossier->documents->count() }}</span>
             </button>
+            <button class="ec-tab-btn" id="btn-tab-etapes" onclick="showTab('etapes', this)">
+                <i class="bi bi-list-check"></i> Étapes
+                <span class="ec-tab-count">{{ $etapes->count() }}</span>
+            </button>
             <button class="ec-tab-btn" id="btn-tab-messages" onclick="showTab('messages', this)">
-                <i class="bi bi-chat-dots-fill"></i> Messagerie
+                <i class="bi bi-chat-dots-fill"></i> Messages
                 <span class="ec-tab-count">{{ $messages->count() }}</span>
             </button>
         </div>
@@ -420,6 +341,7 @@
                         </div>
                         <div class="ec-card-body">
                             <div class="statut-form-card">
+                                {{-- Formulaire de changement de statut global du dossier --}}
                                 <form method="POST" action="{{ route('admin.dossiers.statut', $dossier->id) }}">
                                     @csrf
                                     <label style="font-size:.8rem;font-weight:700;color:var(--primary);display:block;margin-bottom:.6rem;">
@@ -435,8 +357,7 @@
                                             </select>
                                         </div>
                                         <div class="col-md-5">
-                                            <button type="submit" class="btn w-100"
-                                                    style="background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;border-radius:10px;font-weight:700;padding:.65rem 1rem;">
+                                            <button type="submit" class="btn w-100" style="background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;border-radius:10px;font-weight:700;padding:.65rem 1rem;">
                                                 <i class="bi bi-check-lg me-1"></i> Mettre à jour
                                             </button>
                                         </div>
@@ -463,6 +384,10 @@
                             <div class="resume-row">
                                 <span class="resume-label">Documents</span>
                                 <span class="resume-value">{{ $documentsAvecStatut->filter(fn($d) => $d['uploaded'])->count() }} / {{ $documentsAvecStatut->count() }}</span>
+                            </div>
+                            <div class="resume-row">
+                                <span class="resume-label">Étapes validées</span>
+                                <span class="resume-value">{{ $etapes->where('statut','validée')->count() }} / {{ $etapes->count() }}</span>
                             </div>
                             <div class="resume-row">
                                 <span class="resume-label">Statut actuel</span>
@@ -494,16 +419,16 @@
 
                     @forelse($documentsAvecStatut as $item)
                         @php
-                            $requis   = $item['requis'];
-                            $uploaded = $item['uploaded'];
-                            $ext      = $uploaded ? strtolower(pathinfo($uploaded->fichier ?? '', PATHINFO_EXTENSION)) : '';
-                            $isImg    = in_array($ext, ['jpg','jpeg','png','webp']);
-                            $isPdf    = $ext === 'pdf';
+                            $requis    = $item['requis'];
+                            $uploaded  = $item['uploaded'];
+                            $ext       = $uploaded ? strtolower(pathinfo($uploaded->fichier ?? '', PATHINFO_EXTENSION)) : '';
+                            $isImg     = in_array($ext, ['jpg','jpeg','png','webp']);
+                            $isPdf     = $ext === 'pdf';
                             $iconClass = $uploaded
                                 ? ($uploaded->statut === 'valide'  ? 'doc-icon-valide'
                                 : ($uploaded->statut === 'refuse'  ? 'doc-icon-refuse'  : 'doc-icon-attente'))
                                 : 'doc-icon-pending';
-                            $iconBi   = $uploaded
+                            $iconBi    = $uploaded
                                 ? ($uploaded->statut === 'valide'  ? 'bi-check-circle-fill'
                                 : ($uploaded->statut === 'refuse'  ? 'bi-x-circle-fill'
                                 : ($isImg ? 'bi-file-image' : ($isPdf ? 'bi-file-pdf' : 'bi-file-earmark-arrow-up'))))
@@ -539,7 +464,7 @@
                                             </div>
                                         @endif
                                         <div class="doc-actions">
-                                            {{-- Voir --}}
+                                            {{-- Voir le fichier --}}
                                             <a href="{{ asset('storage/'.$uploaded->fichier) }}" target="_blank" class="btn-doc btn-doc-view">
                                                 <i class="bi bi-eye"></i> Voir
                                             </a>
@@ -592,7 +517,146 @@
             </div>
         </div>
 
-        {{-- ════ ONGLET 3 — MESSAGERIE ════ --}}
+        {{-- ════ ONGLET 3 — ÉTAPES ════ --}}
+        {{--
+            Cet onglet est le NOUVEAU.
+            Il permet à l'admin de mettre à jour le statut
+            de chaque étape du dossier : en_attente → en_cours → validée
+            Le client voit ces changements en temps réel côté client.
+        --}}
+        <div class="tab-pane" id="pane-etapes">
+            <div class="ec-card" data-aos="fade-up">
+                <div class="ec-card-header">
+                    <h3><i class="bi bi-list-check"></i> Progression du dossier</h3>
+                    {{-- Compteur : étapes validées / total --}}
+                    <span style="font-size:.82rem;color:var(--muted);">
+                        {{ $etapes->where('statut','validée')->count() }}
+                        / {{ $etapes->count() }} étape(s) validée(s)
+                    </span>
+                </div>
+                <div class="ec-card-body">
+
+                    {{-- Barre de progression globale --}}
+                    @php
+                        $total   = $etapes->count();
+                        $valides = $etapes->where('statut', 'validée')->count();
+                        $pct     = $total > 0 ? round(($valides / $total) * 100) : 0;
+                    @endphp
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span style="font-size:.82rem;font-weight:700;color:var(--primary);">Avancement global</span>
+                            <span style="font-size:.82rem;font-weight:700;color:var(--primary);">{{ $pct }}%</span>
+                        </div>
+                        <div class="progress" style="height:10px;border-radius:999px;background:var(--light-bg);">
+                            <div class="progress-bar" role="progressbar"
+                                 style="width:{{ $pct }}%;background:linear-gradient(90deg,var(--primary),var(--primary-light));border-radius:999px;transition:width .8s ease;"
+                                 aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ec-alert ec-alert-info mb-4">
+                        <i class="bi bi-info-circle-fill" style="flex-shrink:0;"></i>
+                        <div>
+                            Mettez à jour le statut de chaque étape au fur et à mesure.
+                            Le client voit ces changements en temps réel.
+                        </div>
+                    </div>
+
+                    {{-- Liste des étapes --}}
+                    @forelse($etapes as $index => $dossierEtape)
+
+                        {{--
+                            $dossierEtape = une ligne de dossier_etapes
+                            $dossierEtape->etape = la définition de l'étape (nom, ordre)
+                            $dossierEtape->statut = en_attente | en_cours | validée
+                        --}}
+
+                        <div style="
+                            display:flex; align-items:flex-start; gap:1rem;
+                            padding:1rem 1.25rem;
+                            border:1.5px solid {{ $dossierEtape->statut === 'validée' ? 'rgba(16,185,129,.3)' : ($dossierEtape->statut === 'en_cours' ? 'rgba(59,130,246,.3)' : 'var(--border)') }};
+                            border-radius:14px; margin-bottom:.75rem;
+                            background:{{ $dossierEtape->statut === 'validée' ? 'rgba(16,185,129,.03)' : ($dossierEtape->statut === 'en_cours' ? 'rgba(59,130,246,.04)' : '#fafbfc') }};
+                            transition:all .2s;
+                        ">
+
+                            {{-- Numéro / icône de l'étape --}}
+                            <div style="
+                                width:36px;height:36px;border-radius:50%;
+                                display:flex;align-items:center;justify-content:center;
+                                font-size:.82rem;font-weight:800;flex-shrink:0;
+                                background:{{ $dossierEtape->statut === 'validée' ? 'rgba(16,185,129,.15)' : ($dossierEtape->statut === 'en_cours' ? 'rgba(59,130,246,.15)' : 'var(--light-bg)') }};
+                                color:{{ $dossierEtape->statut === 'validée' ? 'var(--success)' : ($dossierEtape->statut === 'en_cours' ? '#1d4ed8' : 'var(--muted)') }};
+                            ">
+                                @if($dossierEtape->statut === 'validée')
+                                    <i class="bi bi-check-lg"></i>
+                                @else
+                                    {{ $index + 1 }}
+                                @endif
+                            </div>
+
+                            {{-- Nom de l'étape + badge statut actuel --}}
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-size:.9rem;font-weight:600;color:var(--text);">
+                                    {{-- Nom depuis la table etapes via la relation --}}
+                                    {{ $dossierEtape->etape->nom ?? 'Étape ' . ($index + 1) }}
+                                </div>
+                                <div style="margin-top:.25rem;">
+                                    @if($dossierEtape->statut === 'validée')
+                                        <span style="display:inline-flex;align-items:center;gap:.3rem;background:rgba(16,185,129,.12);color:#065f46;font-size:.72rem;font-weight:700;padding:.2rem .6rem;border-radius:999px;">
+                                            <i class="bi bi-check-circle-fill"></i> Validée
+                                        </span>
+                                    @elseif($dossierEtape->statut === 'en_cours')
+                                        <span style="display:inline-flex;align-items:center;gap:.3rem;background:rgba(59,130,246,.12);color:#1d4ed8;font-size:.72rem;font-weight:700;padding:.2rem .6rem;border-radius:999px;">
+                                            <i class="bi bi-arrow-repeat"></i> En cours
+                                        </span>
+                                    @else
+                                        <span style="display:inline-flex;align-items:center;gap:.3rem;background:rgba(245,158,11,.12);color:#92400e;font-size:.72rem;font-weight:700;padding:.2rem .6rem;border-radius:999px;">
+                                            <i class="bi bi-clock"></i> En attente
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- Formulaire de changement de statut (admin uniquement) --}}
+                            {{--
+                                Route : POST /admin/dossiers/{dossier}/etapes/{dossierEtape}
+                                Name  : admin.dossiers.etapes.update
+                            --}}
+                            <form method="POST"
+                                  action="{{ route('admin.dossiers.etapes.update', [$dossier->id, $dossierEtape->id]) }}"
+                                  style="display:flex;gap:.5rem;align-items:center;flex-shrink:0;">
+                                @csrf
+
+                                {{-- Select avec la valeur actuelle présélectionnée --}}
+                                <select name="statut" style="border:1.5px solid var(--border);border-radius:8px;padding:.35rem .7rem;font-family:var(--font-body);font-size:.8rem;outline:none;background:white;color:var(--text);cursor:pointer;">
+                                    <option value="en_attente" {{ $dossierEtape->statut === 'en_attente' ? 'selected' : '' }}>En attente</option>
+                                    <option value="en_cours"   {{ $dossierEtape->statut === 'en_cours'   ? 'selected' : '' }}>En cours</option>
+                                    <option value="validée"    {{ $dossierEtape->statut === 'validée'    ? 'selected' : '' }}>Validée</option>
+                                </select>
+
+                                <button type="submit" style="display:inline-flex;align-items:center;gap:.3rem;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;border:none;border-radius:8px;padding:.38rem .8rem;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;">
+                                    <i class="bi bi-check-lg"></i> OK
+                                </button>
+                            </form>
+
+                        </div>
+
+                    @empty
+                        <div class="text-center py-5" style="color:var(--muted);">
+                            <i class="bi bi-list-check" style="font-size:2.5rem;display:block;margin-bottom:.75rem;opacity:.25;"></i>
+                            <p>Aucune étape configurée pour ce service.</p>
+                            <p style="font-size:.82rem;">Allez dans <strong>Gestion des services → Étapes</strong> pour en ajouter.</p>
+                        </div>
+                    @endforelse
+
+                </div>
+            </div>
+        </div>
+
+        {{-- ════ ONGLET 4 — MESSAGERIE ════ --}}
         <div class="tab-pane" id="pane-messages">
             <div class="ec-card" data-aos="fade-up">
                 <div class="ec-card-header">
@@ -612,7 +676,7 @@
                         @else
                             @foreach($messages as $message)
                                 @php
-                                    $isAdmin = ($message->expediteur->role ?? 'client') === 'admin';
+                                    $isAdmin   = ($message->expediteur->role ?? 'client') === 'admin';
                                     $avatarSrc = $message->expediteur->avatar
                                         ? asset('storage/'.$message->expediteur->avatar)
                                         : asset('images/avatar.png');
@@ -624,9 +688,12 @@
                                             {{ $isAdmin ? 'Vous (Admin)' : $message->expediteur->name ?? '—' }}
                                         </div>
                                         <div class="bubble-text">{{ $message->contenu }}</div>
-<span class="msg-time" data-utc="{{ optional($message->created_at)->toISOString() }}">
-    {{ optional($message->created_at)->format('d/m/Y à H:i') }}
-</span>                                    </div>
+                                        {{-- data-utc utilisé par JS pour convertir en heure locale --}}
+                                        <span class="bubble-time msg-time"
+                                              data-utc="{{ optional($message->created_at)->toISOString() }}">
+                                            {{ optional($message->created_at)->format('d/m/Y à H:i') }}
+                                        </span>
+                                    </div>
                                 </div>
                             @endforeach
                         @endif
@@ -659,15 +726,15 @@
                         </form>
                     </div>
 
-                    {{-- Danger zone — effacer conversation --}}
+                    {{-- Danger zone : effacer conversation --}}
                     @if($messages->isNotEmpty())
                         <div class="danger-zone">
                             <div>
                                 <div class="danger-zone-label"><i class="bi bi-trash3 me-1"></i> Effacer toute la conversation</div>
-                                <div class="danger-zone-sub">Cette action supprime définitivement tous les messages de ce dossier.</div>
+                                <div class="danger-zone-sub">Cette action supprime définitivement tous les messages.</div>
                             </div>
                             <form method="POST" action="{{ route('admin.dossiers.messages.clear', $dossier->id) }}"
-                                  onsubmit="return confirm('Effacer toute la conversation ? Cette action est irréversible.')">
+                                  onsubmit="return confirm('Effacer toute la conversation ? Action irréversible.')">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn-clear-msgs">
                                     <i class="bi bi-trash3-fill"></i> Effacer
@@ -722,16 +789,26 @@
 <script>
 AOS.init({ duration: 700, once: true, offset: 40 });
 
-/* ── Navigation onglets ── */
+/* ══════════════════════════════════════════════
+   NAVIGATION PAR ONGLETS
+   Masque tous les panneaux sauf celui sélectionné
+══════════════════════════════════════════════ */
 function showTab(id, btn) {
+    // Masque tous les panneaux
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    // Retire la classe active de tous les boutons
     document.querySelectorAll('.ec-tab-btn').forEach(b => b.classList.remove('active'));
+    // Affiche le panneau cible
     document.getElementById('pane-' + id)?.classList.add('active');
+    // Marque le bouton comme actif
     btn.classList.add('active');
+    // Si on ouvre la messagerie, on scrolle au bas du chat
     if (id === 'messages') scrollChat();
 }
 
-/* ── Scroll chat vers le bas ── */
+/* ══════════════════════════════════════════════
+   SCROLL AUTOMATIQUE EN BAS DU CHAT
+══════════════════════════════════════════════ */
 function scrollChat() {
     const c = document.getElementById('chatContainer');
     if (c) requestAnimationFrame(() => { c.scrollTop = c.scrollHeight; });
@@ -739,61 +816,20 @@ function scrollChat() {
 
 /* ══════════════════════════════════════════════
    CONVERSION DES DATES UTC → HEURE LOCALE
-   But : corriger le décalage horaire entre
-   la BDD (UTC) et l'utilisateur (son pays)
+   Corrige le décalage entre la BDD (UTC) et le
+   fuseau horaire du navigateur de l'utilisateur
 ══════════════════════════════════════════════ */
 function convertirDates() {
-
-    // Sélectionne tous les éléments HTML qui ont
-    // la classe "msg-time" dans la page
-    // (= tous les divs qui affichent une heure de message)
     document.querySelectorAll('.msg-time').forEach(el => {
-
-        // Lit l'attribut data-utc de l'élément
-        // Exemple de valeur : "2026-04-23T09:00:00.000000Z"
-        // C'est la date stockée en UTC dans MySQL
         const utc = el.getAttribute('data-utc');
-
-        // Sécurité : si l'attribut est vide ou absent,
-        // on arrête là pour éviter une erreur JavaScript
         if (!utc) return;
-
-        // Crée un objet Date JavaScript à partir de la
-        // chaîne UTC — JS comprend automatiquement
-        // que le "Z" à la fin signifie UTC
         const date = new Date(utc);
-
-        // Remplace le texte affiché dans le div
-        // par la date convertie dans le fuseau
-        // horaire LOCAL du navigateur de l'utilisateur
-        // 'fr-FR' = format français (jour/mois/année)
         el.textContent = date.toLocaleString('fr-FR', {
-            day:    '2-digit', // ex: 23
-            month:  '2-digit', // ex: 04
-            year:   'numeric', // ex: 2026
-            hour:   '2-digit', // ex: 10
-            minute: '2-digit'  // ex: 00
-            // Résultat final : "23/04/2026, 10:00"
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
         });
     });
 }
-
-/* ══════════════════════════════════════════════
-   ATTENDRE QUE LA PAGE SOIT ENTIÈREMENT CHARGÉE
-   avant d'exécuter les fonctions
-   (sinon JS cherche des éléments qui n'existent
-   pas encore et ça provoque des erreurs)
-══════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', () => {
-
-    // Scroll automatique vers le bas du chat
-    // pour voir le dernier message
-    scrollChat();
-
-    // Conversion de toutes les dates UTC
-    // en heure locale de l'utilisateur
-    convertirDates();
-});
 
 /* ── Auto-resize textarea ── */
 const chatInput = document.querySelector('.chat-input');
@@ -802,6 +838,7 @@ if (chatInput) {
         this.style.height = 'auto';
         this.style.height = Math.min(this.scrollHeight, 120) + 'px';
     });
+    // Ctrl+Entrée pour envoyer
     chatInput.addEventListener('keydown', function(e) {
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
             this.closest('form').submit();
@@ -809,7 +846,7 @@ if (chatInput) {
     });
 }
 
-/* ── Modal refus document ── */
+/* ── Ouvrir le modal de refus de document ── */
 function ouvrirModalRefus(url, nomDoc) {
     document.getElementById('formRefusDoc').action = url;
     document.getElementById('refusDocNomDisplay').textContent = '📄 ' + nomDoc;
@@ -817,12 +854,19 @@ function ouvrirModalRefus(url, nomDoc) {
     new bootstrap.Modal(document.getElementById('modalRefusDoc')).show();
 }
 
-/* ── Ouvrir onglet selon URL hash ── */
+/* ── Au chargement de la page ── */
+document.addEventListener('DOMContentLoaded', () => {
+    scrollChat();
+    convertirDates();
+});
+
+/* ── Ouvrir le bon onglet selon l'URL hash ── */
 const hash = window.location.hash;
 if (hash === '#documents') showTab('documents', document.getElementById('btn-tab-documents'));
+if (hash === '#etapes')    showTab('etapes',    document.getElementById('btn-tab-etapes'));
 if (hash === '#messages')  showTab('messages',  document.getElementById('btn-tab-messages'));
 
-/* ── Ouvrir onglet messages si flash success après envoi message ── */
+/* ── Ouvrir automatiquement la messagerie après envoi d'un message ── */
 @if(session('success') && str_contains(session('success', ''), 'essage'))
     document.addEventListener('DOMContentLoaded', () => {
         showTab('messages', document.getElementById('btn-tab-messages'));
