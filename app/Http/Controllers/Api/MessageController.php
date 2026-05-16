@@ -34,7 +34,7 @@ use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\Dossier;
 
-class MessageApiController extends Controller
+class MessageController extends Controller
 {
     // --------------------------------------------------------
     // GET /api/dossiers/{id}/messages
