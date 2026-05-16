@@ -1,53 +1,38 @@
 <?php
 
 // ============================================================
-// app/Http/Controllers/Api/DossierApiController.php
+// app/Http/Controllers/Api/DossierController.php
 //
-// Gère les dossiers des clients via l'API mobile.
+// STRUCTURE RÉELLE DE LA BASE DE DONNÉES :
 //
-// MÉTHODES :
-//   index()          → liste des dossiers du client connecté
-//   show($id)        → détail d'un dossier avec étapes ✅
-//   store()          → créer un nouveau dossier
-//   uploadDocument() → uploader un document dans un dossier
+//   dossiers        → id, user_id, service_id, statut
+//   services        → id, nom, pays
+//   etapes          → id, service_id, nom, ordre
+//   dossier_etapes  → id, dossier_id, etape_id, statut
+//   documents_requis → id, service_id, nom, obligatoire
+//   dossier_documents → id, dossier_id, document_requis_id, statut, commentaire
+//   messages        → id, dossier_id, sender_id, contenu, is_read
 //
-// CORRECTION CLÉE :
-//   La méthode show() charge maintenant les ÉTAPES avec
-//   ->with(['service', 'documentsSoumis', 'etapes'])
-//   C'est pourquoi les étapes n'apparaissaient pas sur
-//   le mobile : elles n'étaient pas incluses dans la réponse.
+// CORRECTION :
+//   Les étapes sont dans une table pivot "dossier_etapes"
+//   qui lie un dossier à ses étapes via etape_id.
+//   Le nom de l'étape est dans la table "etapes".
+//   On fait une jointure pour récupérer nom + ordre + statut.
 // ============================================================
 
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\Dossier;
 use App\Models\Service;
-use App\Models\DocumentSoumis;
-use App\Models\DocumentRequis;
-use Illuminate\Support\Facades\Storage;
 
-class DossierApiController extends Controller
+class DossierController extends Controller
 {
     // --------------------------------------------------------
     // GET /api/dossiers
-    //
-    // Retourne la liste des dossiers du client connecté.
-    // Inclut le service (nom, pays) pour l'affichage dans
-    // la liste.
-    //
-    // Réponse :
-    // {
-    //   "dossiers": [
-    //     {
-    //       "id": 1,
-    //       "statut": "en_cours",
-    //       "created_at": "19/04/2026",
-    //       "service": { "nom": "Études au Canada", "pays": "Canada" }
-    //     }
-    //   ]
-    // }
+    // Liste des dossiers du client connecté
     // --------------------------------------------------------
     public function index(Request $request)
     {
@@ -74,82 +59,67 @@ class DossierApiController extends Controller
     // --------------------------------------------------------
     // GET /api/dossiers/{id}
     //
-    // Retourne le détail complet d'un dossier :
-    //   - service associé (nom, pays, durée)
-    //   - documents requis + statut de soumission du client
-    //   - étapes ✅ avec leur statut (en_attente / fait)
-    //
-    // ✅ CORRECTION PRINCIPALE :
-    //   Avant, les étapes n'étaient pas chargées.
-    //   Maintenant on charge : service + documentsSoumis + etapes
-    //
-    // Réponse :
-    // {
-    //   "dossier": {
-    //     "id": 1,
-    //     "statut": "en_cours",
-    //     "service": { "nom": "Études au Canada", "pays": "Canada" },
-    //     "documents": [
-    //       { "id": 1, "nom": "Passeport", "statut": "valide", "obligatoire": true }
-    //     ],
-    //     "etapes": [
-    //       { "id": 1, "nom": "Admission DLI", "ordre": 1, "statut": "en_attente" }
-    //     ]
-    //   }
-    // }
+    // Détail complet d'un dossier avec :
+    //   - service (nom, pays)
+    //   - documents (statut de soumission)
+    //   - étapes ✅ (jointure dossier_etapes + etapes)
     // --------------------------------------------------------
     public function show(Request $request, $id)
     {
-        // Vérifier que le dossier appartient bien au client connecté
-        $dossier = Dossier::with([
-                'service',
-                // Documents soumis par le client (avec leur statut)
-                'documentsSoumis.documentRequis',
-                // ✅ Étapes du dossier — C'est ce qui manquait !
-                // Le mobile affichait 0/8 car les étapes n'étaient
-                // pas incluses dans la réponse API.
-                'etapes',
-            ])
+        // Vérifier que le dossier appartient au client connecté
+        $dossier = Dossier::with('service')
             ->where('user_id', auth()->id())
             ->findOrFail($id);
 
-        // ── Formater les documents ────────────────────────────
-        // On liste tous les documents REQUIS du service,
-        // et on y attache le statut de soumission du client.
-        $documentsRequis = DocumentRequis::where('service_id', $dossier->service_id)->get();
-
-        $documents = $documentsRequis->map(function ($requis) use ($dossier) {
-            // Trouver si le client a soumis ce document
-            $soumis = $dossier->documentsSoumis
-                ->where('document_requis_id', $requis->id)
-                ->first();
-
-            return [
-                'id'          => $requis->id,
-                'nom'         => $requis->nom,
-                'obligatoire' => (bool) $requis->obligatoire,
-                // Statut : non_envoye si pas encore soumis
-                'statut'      => $soumis ? $soumis->statut : 'non_envoye',
-                // Commentaire de refus (visible si statut = refuse)
-                'commentaire' => $soumis?->commentaire,
-            ];
-        });
-
-        // ── Formater les étapes ───────────────────────────────
-        // Les étapes sont triées par ordre (ordre 1, 2, 3...)
-        // Chaque étape a un statut : en_attente ou fait
-        $etapes = $dossier->etapes
-            ->sortBy('ordre')
-            ->values()
+        // ── Récupérer les étapes ──────────────────────────────
+        // Jointure entre dossier_etapes (statut) et etapes (nom, ordre)
+        // Structure :
+        //   dossier_etapes.dossier_id = $dossier->id
+        //   dossier_etapes.etape_id   = etapes.id
+        //   etapes.nom, etapes.ordre
+        $etapes = DB::table('dossier_etapes')
+            ->join('etapes', 'dossier_etapes.etape_id', '=', 'etapes.id')
+            ->where('dossier_etapes.dossier_id', $dossier->id)
+            ->orderBy('etapes.ordre')
+            ->select(
+                'dossier_etapes.id',
+                'etapes.nom',
+                'etapes.ordre',
+                'dossier_etapes.statut'
+            )
+            ->get()
             ->map(function ($etape) {
                 return [
                     'id'     => $etape->id,
                     'nom'    => $etape->nom,
                     'ordre'  => $etape->ordre,
-                    // ✅ L'admin change ce statut via le back-office
-                    // Quand il passe de "en_attente" à "fait",
-                    // le mobile le voit au prochain rechargement
                     'statut' => $etape->statut,
+                ];
+            });
+
+        // ── Récupérer les documents ───────────────────────────
+        // Jointure entre documents_requis et dossier_documents
+        $documents = DB::table('documents_requis')
+            ->leftJoin('dossier_documents', function ($join) use ($dossier) {
+                $join->on('dossier_documents.document_requis_id', '=', 'documents_requis.id')
+                     ->where('dossier_documents.dossier_id', '=', $dossier->id);
+            })
+            ->where('documents_requis.service_id', $dossier->service_id)
+            ->select(
+                'documents_requis.id',
+                'documents_requis.nom',
+                'documents_requis.obligatoire',
+                DB::raw("COALESCE(dossier_documents.statut, 'non_envoye') as statut"),
+                'dossier_documents.commentaire'
+            )
+            ->get()
+            ->map(function ($doc) {
+                return [
+                    'id'          => $doc->id,
+                    'nom'         => $doc->nom,
+                    'obligatoire' => (bool) $doc->obligatoire,
+                    'statut'      => $doc->statut,
+                    'commentaire' => $doc->commentaire,
                 ];
             });
 
@@ -171,15 +141,7 @@ class DossierApiController extends Controller
 
     // --------------------------------------------------------
     // POST /api/dossiers
-    //
-    // Crée un nouveau dossier pour le client connecté.
-    // Body : { "service_id": 3 }
-    //
-    // Au moment de la création, toutes les étapes du service
-    // sont automatiquement copiées dans le dossier avec le
-    // statut "en_attente".
-    //
-    // Réponse : { "message": "Dossier créé avec succès.", "dossier": {...} }
+    // Créer un nouveau dossier
     // --------------------------------------------------------
     public function store(Request $request)
     {
@@ -187,7 +149,6 @@ class DossierApiController extends Controller
             'service_id' => 'required|exists:services,id',
         ]);
 
-        // Vérifier que le client n'a pas déjà un dossier pour ce service
         $existing = Dossier::where('user_id', auth()->id())
             ->where('service_id', $request->service_id)
             ->first();
@@ -198,26 +159,25 @@ class DossierApiController extends Controller
             ], 422);
         }
 
-        // Créer le dossier
         $dossier = Dossier::create([
             'user_id'    => auth()->id(),
             'service_id' => $request->service_id,
             'statut'     => 'en_attente',
         ]);
 
-        // ── Copier les étapes du service dans le dossier ─────
-        // Chaque service a des étapes prédéfinies (ex: "Admission DLI",
-        // "Paiement frais"...). On les copie toutes avec statut "en_attente".
-        $etapesService = \App\Models\EtapeService::where('service_id', $request->service_id)
+        // Copier les étapes du service dans dossier_etapes
+        $etapesService = DB::table('etapes')
+            ->where('service_id', $request->service_id)
             ->orderBy('ordre')
             ->get();
 
-        foreach ($etapesService as $etapeService) {
-            \App\Models\Etape::create([
+        foreach ($etapesService as $etape) {
+            DB::table('dossier_etapes')->insert([
                 'dossier_id' => $dossier->id,
-                'nom'        => $etapeService->nom,
-                'ordre'      => $etapeService->ordre,
+                'etape_id'   => $etape->id,
                 'statut'     => 'en_attente',
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
 
@@ -229,42 +189,45 @@ class DossierApiController extends Controller
 
     // --------------------------------------------------------
     // POST /api/dossiers/{id}/documents
-    //
-    // Upload d'un document par le client.
-    // Le fichier est stocké dans storage/app/public/documents/
-    // et accessible via /storage/documents/{filename}
-    //
-    // Body (multipart/form-data) :
-    //   - document_requis_id : int
-    //   - fichier : File (PDF, JPEG, PNG — max 5Mo)
-    //
-    // Réponse : { "message": "Document envoyé avec succès." }
+    // Upload d'un document
     // --------------------------------------------------------
     public function uploadDocument(Request $request, $id)
     {
         $request->validate([
-            'document_requis_id' => 'required|exists:document_requis,id',
+            'document_requis_id' => 'required|exists:documents_requis,id',
             'fichier'            => 'required|file|mimes:pdf,jpeg,jpg,png|max:5120',
         ]);
 
         $dossier = Dossier::where('user_id', auth()->id())->findOrFail($id);
 
-        // Stocker le fichier dans storage/app/public/documents/
         $path = $request->file('fichier')->store('documents', 'public');
 
-        // Créer ou mettre à jour le document soumis
-        DocumentSoumis::updateOrCreate(
-            [
+        // Vérifier si un document existe déjà
+        $existing = DB::table('dossier_documents')
+            ->where('dossier_id', $dossier->id)
+            ->where('document_requis_id', $request->document_requis_id)
+            ->first();
+
+        if ($existing) {
+            DB::table('dossier_documents')
+                ->where('id', $existing->id)
+                ->update([
+                    'fichier'     => $path,
+                    'statut'      => 'en_attente',
+                    'commentaire' => null,
+                    'updated_at'  => now(),
+                ]);
+        } else {
+            DB::table('dossier_documents')->insert([
                 'dossier_id'         => $dossier->id,
                 'document_requis_id' => $request->document_requis_id,
-            ],
-            [
-                'fichier'    => $path,
-                // Repasser en "en_attente" si le client renvoie après un refus
-                'statut'     => 'en_attente',
-                'commentaire' => null,
-            ]
-        );
+                'fichier'            => $path,
+                'statut'             => 'en_attente',
+                'commentaire'        => null,
+                'created_at'         => now(),
+                'updated_at'         => now(),
+            ]);
+        }
 
         return response()->json(['message' => 'Document envoyé avec succès.']);
     }
