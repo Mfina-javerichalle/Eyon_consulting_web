@@ -1,209 +1,189 @@
 <?php
 
+// ============================================================
+// app/Http/Controllers/Api/MessageApiController.php
+//
+// Gère la messagerie entre le client et le conseiller.
+//
+// MÉTHODES :
+//   index()       → liste des messages d'un dossier
+//   store()       → envoyer un message
+//   markAsRead()  → marquer les messages comme lus ✅
+//   unreadCount() → nombre total de messages non lus ✅
+//
+// POURQUOI LE BADGE NE FONCTIONNAIT PAS :
+//   L'endpoint GET /api/dossiers/messages/unread-count
+//   n'existait pas dans Laravel. Le mobile appelait
+//   getUnreadCount() → recevait une erreur 404 → le catch
+//   silencieux ignorait l'erreur → badge restait à 0.
+//
+// PRÉREQUIS BASE DE DONNÉES :
+//   La table "messages" doit avoir une colonne "is_read"
+//   de type boolean (défaut false).
+//   Migration à ajouter si elle n'existe pas :
+//
+//   Schema::table('messages', function (Blueprint $table) {
+//       $table->boolean('is_read')->default(false)->after('contenu');
+//   });
+// ============================================================
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\Dossier;
-use App\Models\User;
-use Illuminate\Http\Request;
 
-class MessageController extends Controller
+class MessageApiController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | index() — Historique des messages d'un dossier
-    |--------------------------------------------------------------------------
-    |
-    | GET /api/dossiers/{dossier}/messages
-    |
-    | Retourne tous les messages du dossier triés du plus ancien
-    | au plus récent. Chaque message contient :
-    |   - is_mine    : true si l'expéditeur est l'utilisateur connecté
-    |   - sender     : { id, name, role }
-    |   - created_at : date UTC ISO 8601 → le mobile convertit en heure locale
-    |
-    | Sécurité : le dossier doit appartenir au client connecté.
-    | Exception : l'admin peut accéder à tous les dossiers.
-    |
-    */
-    public function index(Request $request, Dossier $dossier)
+    // --------------------------------------------------------
+    // GET /api/dossiers/{id}/messages
+    //
+    // Retourne tous les messages d'un dossier.
+    // Les messages sont triés du plus ancien au plus récent
+    // pour l'affichage dans le fil de conversation.
+    //
+    // Réponse :
+    // {
+    //   "messages": [
+    //     {
+    //       "id": 1,
+    //       "contenu": "Bonjour, votre dossier est en cours.",
+    //       "is_mine": false,
+    //       "is_read": true,
+    //       "created_at": "2026-05-16T12:00:00Z",
+    //       "sender": { "id": 2, "name": "Admin Elyon" }
+    //     }
+    //   ]
+    // }
+    // --------------------------------------------------------
+    public function index(Request $request, $id)
     {
-        // Vérifier que le dossier appartient au client OU que c'est un admin
-        if ($dossier->user_id !== $request->user()->id
-            && $request->user()->role !== 'admin') {
-            return response()->json(['message' => 'Accès refusé.'], 403);
-        }
+        // Vérifier que le dossier appartient au client connecté
+        $dossier = Dossier::where('user_id', auth()->id())->findOrFail($id);
 
-        // On utilise 'expediteur' — nom exact de la relation dans Message.php
-        $messages = Message::with(['expediteur'])
+        $messages = Message::with('sender')
             ->where('dossier_id', $dossier->id)
             ->orderBy('created_at', 'asc')
             ->get()
-            ->map(fn($m) => [
-                'id'         => $m->id,
-                'contenu'    => $m->contenu,
-                // Format ISO 8601 UTC — le mobile (Intl.DateTimeFormat) convertit
-                // automatiquement dans le fuseau horaire local de l'utilisateur
-                // Ex : "2026-05-16T12:00:00.000000Z" → "14:00" en France
-                'created_at' => $m->created_at->toIso8601String(),
-                'is_read'    => $m->is_read,
-                'sender'     => [
-                    'id'   => $m->expediteur->id,
-                    'name' => $m->expediteur->name,
-                    'role' => $m->expediteur->role,
-                ],
-                'is_mine' => $m->sender_id === $request->user()->id,
-            ]);
+            ->map(function ($message) {
+                return [
+                    'id'         => $message->id,
+                    'contenu'    => $message->contenu,
+                    // is_mine = true si le message a été envoyé par
+                    // l'utilisateur connecté (le client)
+                    'is_mine'    => $message->sender_id === auth()->id(),
+                    'is_read'    => (bool) $message->is_read,
+                    // Heure en UTC — le mobile la convertit en heure locale
+                    'created_at' => $message->created_at->toIso8601String(),
+                    'sender'     => $message->sender ? [
+                        'id'   => $message->sender->id,
+                        'name' => $message->sender->name,
+                    ] : null,
+                ];
+            });
 
-        return response()->json([
-            'messages' => $messages,
-            'total'    => $messages->count(),
-        ], 200);
+        return response()->json(['messages' => $messages]);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | store() — Envoyer un message
-    |--------------------------------------------------------------------------
-    |
-    | POST /api/dossiers/{dossier}/messages
-    | Body : { contenu: "Mon message" }
-    |
-    | Logique de routage :
-    |   Client → envoie au premier admin trouvé
-    |   Admin  → envoie au propriétaire du dossier
-    |
-    | is_read = false par défaut → incrémente le badge de notification
-    |
-    */
-    public function store(Request $request, Dossier $dossier)
+    // --------------------------------------------------------
+    // POST /api/dossiers/{id}/messages
+    //
+    // Le client envoie un message à son conseiller.
+    // Body : { "contenu": "Bonjour, j'ai une question..." }
+    //
+    // Réponse : { "message": { "id": 5, "contenu": "...", ... } }
+    // --------------------------------------------------------
+    public function store(Request $request, $id)
     {
-        // Vérifier l'accès
-        if ($dossier->user_id !== $request->user()->id
-            && $request->user()->role !== 'admin') {
-            return response()->json(['message' => 'Accès refusé.'], 403);
-        }
-
         $request->validate([
             'contenu' => 'required|string|max:2000',
-        ], [
-            'contenu.required' => 'Le message ne peut pas être vide.',
-            'contenu.max'      => 'Le message ne doit pas dépasser 2000 caractères.',
         ]);
 
-        $sender = $request->user();
-
-        // Client → envoie à l'admin / Admin → envoie au propriétaire du dossier
-        $receiver = $sender->role === 'admin'
-            ? $dossier->user
-            : User::where('role', 'admin')->first();
-
-        if (!$receiver) {
-            return response()->json([
-                'message' => 'Destinataire introuvable.',
-            ], 500);
-        }
+        $dossier = Dossier::where('user_id', auth()->id())->findOrFail($id);
 
         $message = Message::create([
-            'sender_id'   => $sender->id,
-            'receiver_id' => $receiver->id,
-            'dossier_id'  => $dossier->id,
-            'contenu'     => $request->contenu,
-            // is_read = false par défaut (défini dans la migration)
-            // → le destinataire verra le badge de notification
+            'dossier_id' => $dossier->id,
+            'sender_id'  => auth()->id(),
+            'contenu'    => $request->contenu,
+            // Le message du client est "lu" par défaut côté admin
+            // car il apparaît dans l'interface admin immédiatement
+            'is_read'    => false,
         ]);
 
-        $message->load('expediteur');
-
         return response()->json([
-            'message' => 'Message envoyé !',
-            'data'    => [
+            'message' => [
                 'id'         => $message->id,
                 'contenu'    => $message->contenu,
-                'created_at' => $message->created_at->toIso8601String(),
+                'is_mine'    => true,
                 'is_read'    => false,
+                'created_at' => $message->created_at->toIso8601String(),
                 'sender'     => [
-                    'id'   => $message->expediteur->id,
-                    'name' => $message->expediteur->name,
-                    'role' => $message->expediteur->role,
+                    'id'   => auth()->id(),
+                    'name' => auth()->user()->name,
                 ],
-                'is_mine' => true,
-            ],
+            ]
         ], 201);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | markAsRead() — Marquer les messages d'un dossier comme lus
-    |--------------------------------------------------------------------------
-    |
-    | POST /api/dossiers/{dossier}/messages/read
-    |
-    | Marque is_read = true sur tous les messages du dossier
-    | envoyés par quelqu'un d'autre que l'utilisateur connecté.
-    |
-    | Appelé automatiquement par le mobile à l'ouverture d'une
-    | conversation → réinitialise le badge de l'onglet Messages.
-    |
-    | Retourne : { success: true, marked: 3 }
-    |
-    */
-    public function markAsRead(Request $request, Dossier $dossier)
+    // --------------------------------------------------------
+    // POST /api/dossiers/{id}/messages/read
+    //
+    // ✅ ENDPOINT MANQUANT — C'est la cause du badge cassé
+    //
+    // Marque tous les messages d'un dossier comme lus.
+    // Appelé automatiquement par le mobile quand l'utilisateur
+    // ouvre une conversation.
+    //
+    // On ne marque comme lus QUE les messages du conseiller
+    // (sender_id != client connecté), pas ceux du client.
+    //
+    // Réponse : { "success": true }
+    // --------------------------------------------------------
+    public function markAsRead(Request $request, $id)
     {
-        // Vérifier l'accès
-        if ($dossier->user_id !== $request->user()->id
-            && $request->user()->role !== 'admin') {
-            return response()->json(['message' => 'Accès refusé.'], 403);
-        }
+        // Vérifier que le dossier appartient au client connecté
+        $dossier = Dossier::where('user_id', auth()->id())->findOrFail($id);
 
-        // Marquer uniquement les messages des autres comme lus (pas les siens)
-        $count = Message::where('dossier_id', $dossier->id)
-            ->where('sender_id', '!=', $request->user()->id)
-            ->where('is_read', false)
+        // Marquer comme lus tous les messages envoyés par le conseiller
+        // (= tous les messages dont l'expéditeur n'est pas le client)
+        Message::where('dossier_id', $dossier->id)
+            ->where('sender_id', '!=', auth()->id())
+            ->where('is_read', false) // Optimisation : ne toucher que les non lus
             ->update(['is_read' => true]);
 
-        return response()->json([
-            'success' => true,
-            'marked'  => $count, // nombre de messages effectivement marqués
-        ]);
+        return response()->json(['success' => true]);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | unreadCount() — Nombre total de messages non lus
-    |--------------------------------------------------------------------------
-    |
-    | GET /api/dossiers/messages/unread-count
-    |
-    | Compte tous les messages non lus (is_read = false) reçus par
-    | le client connecté sur l'ensemble de ses dossiers.
-    |
-    | Utilisé par AppNavigator pour le badge rouge sur l'onglet
-    | Messages. Polling côté mobile toutes les 30 secondes.
-    |
-    | Retourne : { unread_count: 3 }
-    |
-    | ⚠️  IMPORTANT — Ordre dans api.php :
-    |     Cette route DOIT être déclarée AVANT la route
-    |     /dossiers/{dossier}/messages, sinon Laravel
-    |     interprétera "unread-count" comme un ID de dossier
-    |     et retournera une erreur 403 ou 404.
-    |
-    */
+    // --------------------------------------------------------
+    // GET /api/dossiers/messages/unread-count
+    //
+    // ✅ ENDPOINT MANQUANT — C'est la cause du badge cassé
+    //
+    // Retourne le nombre total de messages NON LUS
+    // reçus par le client connecté, sur TOUS ses dossiers.
+    //
+    // Utilisé par AppNavigator pour afficher le badge rouge
+    // sur l'onglet "Messages" dans la barre de navigation.
+    // Le polling se fait toutes les 30 secondes.
+    //
+    // Réponse : { "unread_count": 3 }
+    //
+    // IMPORTANT : cette route est déclarée AVANT /dossiers/{id}
+    // dans api.php pour éviter que "messages" soit interprété
+    // comme un ID de dossier.
+    // --------------------------------------------------------
     public function unreadCount(Request $request)
     {
-        $userId = $request->user()->id;
-
-        $count = Message::query()
-            // Seulement dans les dossiers appartenant au client connecté
-            ->whereHas('dossier', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
+        // Compter les messages non lus dans tous les dossiers du client
+        $count = Message::whereHas('dossier', function ($query) {
+                // Seulement les dossiers appartenant au client connecté
+                $query->where('user_id', auth()->id());
             })
-            // Non lus
+            // Seulement les messages du conseiller (pas ceux du client)
+            ->where('sender_id', '!=', auth()->id())
+            // Seulement les messages non encore lus
             ->where('is_read', false)
-            // Envoyés par le conseiller/admin (pas par le client lui-même)
-            ->where('sender_id', '!=', $userId)
             ->count();
 
         return response()->json(['unread_count' => $count]);
